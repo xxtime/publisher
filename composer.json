@@ -1,0 +1,14 @@
+{
+  "name": "xxtime/oauth",
+  "type": "library",
+  "description": "Oauth",
+  "homepage": "https://github.com/xxtime",
+  "require": {
+    "php": ">=5.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Xt\\Oauth\\": "src/"
+    }
+  }
+}
