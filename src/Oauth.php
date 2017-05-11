@@ -16,11 +16,6 @@ class Oauth
     /**
      * @var
      */
-    private $_provider;
-
-    /**
-     * @var
-     */
     private $_app_id;
 
     /**
@@ -31,15 +26,16 @@ class Oauth
 
     /**
      * Oauth constructor.
-     * @param array $option [provider,app_id,app_key]
+     * @param string $provider
+     * @param array $option
+     * @throws DefaultException
      */
-    public function __construct($option = [])
+    public function __construct($provider = '', $option = [])
     {
-        $this->_provider = $option['provider'];
         $this->_app_id = $option['app_id'];
         $this->_app_key = $option['app_key'];
 
-        $class = "\\Xt\\Oauth\\Providers\\" . ucfirst($this->_provider);
+        $class = "\\Xt\\Oauth\\Providers\\" . ucfirst($provider);
         if (!class_exists($class)) {
             throw new DefaultException('can`t find class');
         }
