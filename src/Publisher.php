@@ -1,11 +1,11 @@
 <?php
 
-namespace Xt\Oauth;
+namespace Xt\Publisher;
 
 
-use Xt\Oauth\DefaultException;
+use Xt\Publisher\DefaultException;
 
-class Oauth
+class Publisher
 {
 
     /**
@@ -25,7 +25,7 @@ class Oauth
 
 
     /**
-     * Oauth constructor.
+     * Publisher constructor.
      * @param string $provider
      * @param array $option
      * @throws DefaultException
@@ -35,7 +35,7 @@ class Oauth
         $this->_app_id = $option['app_id'];
         $this->_app_key = $option['app_key'];
 
-        $class = "\\Xt\\Oauth\\Providers\\" . ucfirst($provider);
+        $class = "\\Xt\\Publisher\\Providers\\" . ucfirst($provider);
         if (!class_exists($class)) {
             throw new DefaultException('can`t find class');
         }

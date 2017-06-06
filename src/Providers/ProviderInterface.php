@@ -1,6 +1,6 @@
 <?php
 
-namespace Xt\Oauth\Providers;
+namespace Xt\Publisher\Providers;
 
 
 interface ProviderInterface

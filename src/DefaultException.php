@@ -1,6 +1,6 @@
 <?php
 
-namespace Xt\Oauth;
+namespace Xt\Publisher;
 
 
 use Exception;
