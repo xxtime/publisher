@@ -60,4 +60,18 @@ class Publisher
     }
 
 
+    /**
+     * 通知回调
+     * @return mixed
+     * @throws \Xt\Publisher\DefaultException
+     */
+    public function notify()
+    {
+        try {
+            return $this->provider->notify();
+        } catch (DefaultException $e) {
+            throw $e;
+        }
+    }
+
 }
