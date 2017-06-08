@@ -31,4 +31,10 @@ class Demo extends ProviderAbstract
         ];
     }
 
+
+    public function success()
+    {
+        exit('success');
+    }
+
 }

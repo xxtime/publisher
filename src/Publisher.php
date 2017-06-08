@@ -74,4 +74,19 @@ class Publisher
         }
     }
 
+
+    /**
+     * 成功回调响应
+     * @return mixed
+     * @throws \Xt\Publisher\DefaultException
+     */
+    public function success()
+    {
+        try {
+            return $this->provider->success();
+        } catch (DefaultException $e) {
+            throw $e;
+        }
+    }
+
 }
