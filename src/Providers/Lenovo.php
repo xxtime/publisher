@@ -43,7 +43,7 @@ class Lenovo extends ProviderAbstract{
         }
 
         // TODO: Implement verifyToken() method.
-        return array('uid' => $result->AccountID, 'username' => '', 'original' => $result);
+        return array('uid' => $result->AccountID, 'username' => '', 'original' => (array)$result);
     }
 
     public function xml_to_json($source) {
