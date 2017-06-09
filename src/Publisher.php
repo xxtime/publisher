@@ -32,8 +32,12 @@ class Publisher
      */
     public function __construct($provider = '', $option = [])
     {
-        $this->_app_id = $option['app_id'];
-        $this->_app_key = $option['app_key'];
+        if (isset($option['app_id'])) {
+            $this->_app_id = $option['app_id'];
+        }
+        if (isset($option['app_key'])) {
+            $this->_app_key = $option['app_key'];
+        }
 
         $class = "\\Xt\\Publisher\\Providers\\" . ucfirst($provider);
         if (!class_exists($class)) {
