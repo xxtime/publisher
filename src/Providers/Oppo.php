@@ -18,7 +18,7 @@ class Oppo extends ProviderAbstract
     {
         $token = str_replace(' ', '+', $token);
         $url = 'http://i.open.game.oppomobile.com/gameopen/user/fileIdInfo';
-        $request_serverUrl = $url . "?fileId=" . $option['ssoid'] . "&token=" . $token;
+        $request_serverUrl = $url . "?fileId=" . $option['uid'] . "&token=" . $token;
         $time = microtime(true);
         $dataParams['oauthConsumerKey'] = $this->app_key;
         $dataParams['oauthToken'] = $token;
