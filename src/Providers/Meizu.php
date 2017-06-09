@@ -15,10 +15,10 @@ class Meizu extends ProviderAbstract{
     //魅族登陆验证
     public function verifyToken($token = '', $option = [])
     {
-        $url = 'https://api.game.meizu.com/game/security/checksession?';
+        $url = 'https://api.game.meizu.com/game/security/checksession';
 
         $ts = time();
-        $sign = md5('app_id='.$this->app_id.'&session_id='.$token.'&ts='.$ts.'&uid='.$option['uid']);
+        $sign = md5('app_id='.$this->app_id.'&session_id='.$token.'&ts='.$ts.'&uid='.$option['uid'].':'.$this->option['secret_key']);
 
         $param = [
             'app_id'   => $this->app_id,
@@ -31,8 +31,17 @@ class Meizu extends ProviderAbstract{
 
         $param = http_build_query($param);
 
-        $url = $url.$param;
-        $response = file_get_contents($url);
+        $response = file_get_contents($url, false, stream_context_create(array(
+            'http' => array(
+                'protocol_version'=>'1.1',
+                'timeout' => 30,
+                'method' => 'POST',
+                'header' => 'Content-Type:application/x-www-form-urlencoded;',
+                'user_agent'=>'xxtime.com',
+                'content' => $param // 字符串
+            )
+        )));
+
         $result = json_decode($response, true);
 
         //如果有异常 抛出异常
@@ -41,7 +50,22 @@ class Meizu extends ProviderAbstract{
         }
 
         // TODO: Implement verifyToken() method.
-        return array('uid' => $result['value']['uid'], 'username' => '', 'original' => $result['value']);
+        return array('uid' => $option['uid'], 'username' => '', 'original' => $result);
+    }
+
+    private function http_curl_post($url, $data, $extend = array())
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_NOBODY, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $curl_result = curl_exec($ch);
+        curl_close($ch);
+
+        return $curl_result;
     }
 
     /**
