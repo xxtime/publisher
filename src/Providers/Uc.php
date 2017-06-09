@@ -13,35 +13,34 @@ use Xt\Publisher\DefaultException;
 
 class Uc extends ProviderAbstract
 {
+
+
     public function verifyToken($token = '', $option = [])
     {
-        //md5(sid=xxxxx + apiKey) sign拼接组成是否为“sid=sid值+apikey值”，并且需要用小写
-        $sign_param = [
-            'sid'    => strtolower($token),
-            'apiKey' => strtolower($this->app_key)
-        ];
-        $sign = md5(implode('', $sign_param));
+        $url = 'http://sdk.9game.cn/cp/account.verifySession';
 
+        $sign = md5("sid=$token" . $this->app_key);
         $param = [
             'id'   => time(),
             'data' => ['sid' => $token],
             'game' => ['gameId' => $this->app_id],
             'sign' => $sign
-
         ];
         $response = $this->http_curl_post($url, json_encode($param));
         $result = json_decode($response, true);
+
         //如果遇到错误 则抛出错误
         if ($result['state']['code'] != 1) {
             throw new DefaultException($response);
         }
 
         return [
-            'uid'      => $option['uid'],
+            'uid'      => $result['data']['accountId'],
             'username' => $result['data']['nickName'],
             'original' => $response
         ];
     }
+
 
     private function http_curl_post($url, $data, $extend = array())
     {
@@ -57,6 +56,7 @@ class Uc extends ProviderAbstract
 
         return $curl_result;
     }
+
 
     /**
      *  return [
@@ -110,6 +110,7 @@ class Uc extends ProviderAbstract
         ];
     }
 
+
     private function check_sign($data, $sign, $appKey)
     {
         $data_ksort = ksort($data);
@@ -124,8 +125,10 @@ class Uc extends ProviderAbstract
         }
     }
 
+
     public function success()
     {
         exit('SUCCESS');
     }
+
 }
