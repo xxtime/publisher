@@ -34,8 +34,8 @@ class Oppo extends ProviderAbstract
         $result = json_decode($result, true);            //结果也是一个json格式字符串
 
         //如果有异常 抛出异常
-        if ($result['code'] != 200) {
-            throw new DefaultException($result['message']);
+        if ($result['resultCode'] != 200) {
+            throw new DefaultException($result['resultMsg']);
         }
 
         // TODO: Implement verifyToken() method.
