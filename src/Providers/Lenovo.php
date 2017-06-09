@@ -15,13 +15,11 @@ class Lenovo extends ProviderAbstract{
     //联想登陆验证
     public function verifyToken($token = '', $option = [])
     {
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $lenovo_cfg = $cfg->lenovo;
         $url = 'http://passport.lenovo.com/interserver/authen/1.2/getaccountid?';
 
         $param = [
             'lpsust' => $token,
-            'realm'   => $lenovo_cfg->app_id,
+            'realm'   => $this->app_id,
         ];
 
         $param = http_build_query($param);
@@ -96,13 +94,10 @@ class Lenovo extends ProviderAbstract{
     // 检查签名
     public function check_sign( $sign = '' )
     {
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $lenovo_cfg = $cfg->lenovo;
-
         $req = $this->request->get( 'transdata' );
 
         $private_key = "-----BEGIN PUBLIC KEY-----\n" .
-            chunk_split($lenovo_cfg->private_key, 64, "\n") .
+            chunk_split($this->option['private_key'], 64, "\n") .
             '-----END PUBLIC KEY-----';
 
         $res = openssl_get_privatekey( $private_key );

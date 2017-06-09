@@ -23,12 +23,10 @@ class Mi extends ProviderAbstract
             '1520' => 'session 错误',
             '1525' => 'signature 错误'
         ];
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $mi_cfg = $cfg->mi;
 
         // 小米验证的参数
         $params = array(
-            'appId'   => $mi_cfg->app_id,
+            'appId'   => $this->app_id,
             'session' => $token,
             'uid'     => $option['uid']
         );
@@ -36,7 +34,7 @@ class Mi extends ProviderAbstract
         $params = array_filter($params);                                                                              // 去除空数据
         ksort($params);                                                                                               // 按照字段排序
         $text = http_build_query($params);
-        $signature = hash_hmac("sha1", $text, $mi_cfg->SecretKey,
+        $signature = hash_hmac("sha1", $text, $this->option['secret_key'],
             false);                                                        // 转换成 URL 格式
         $params['signature'] = urlencode($signature);
 
@@ -72,9 +70,7 @@ class Mi extends ProviderAbstract
             throw new DefaultException('errcode:3515');
         }
 
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $mi_cfg = $cfg->mi;
-        $app_id = $mi_cfg->app_id;
+        $app_id = $this->app_id;
         if ($app_id != $this->request->get('appId')) {
             throw new DefaultException('errcode:1515');
         }

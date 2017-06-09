@@ -78,9 +78,7 @@ class Vivo extends ProviderAbstract
 
     private function check_sign($data, $sign)
     {
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $vivo_cfg = $cfg->vivo;
-        $app_key = $vivo_cfg->app_key;
+        $app_key = $this->app_key;
         $app_key = md5($app_key);
 
         $sign_str = md5(http_build_query($data));

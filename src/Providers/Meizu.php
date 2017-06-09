@@ -15,15 +15,13 @@ class Meizu extends ProviderAbstract{
     //魅族登陆验证
     public function verifyToken($token = '', $option = [])
     {
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $meizu_cfg = $cfg->meizu;
         $url = 'https://api.game.meizu.com/game/security/checksession?';
 
         $ts = time();
-        $sign = md5('app_id='.$meizu_cfg->app_id.'&session_id='.$token.'&ts='.$ts.'&uid='.$option['uid']);
+        $sign = md5('app_id='.$this->app_id.'&session_id='.$token.'&ts='.$ts.'&uid='.$option['uid']);
 
         $param = [
-            'app_id'   => $meizu_cfg->app_id,
+            'app_id'   => $this->app_id,
             'session_id' => $token,
             'uid' => $option['uid'],
             'ts' => $ts,
@@ -84,9 +82,6 @@ class Meizu extends ProviderAbstract{
     // 检查签名
     public function check_sign( $sign = '' )
     {
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $meizu_cfg = $cfg->meizu;
-
         $req = $this->request->get();
         $data = array(
             'app_id'            => $req['app_id'],
@@ -114,7 +109,7 @@ class Meizu extends ProviderAbstract{
             $str .= "$k=$v&";
         }
         $str = trim( $str, '&' );
-        $str = $str . ':' . $meizu_cfg->secret_key;
+        $str = $str . ':' . $this->option['secret_key'];
 
         if( strtolower( $sign ) != md5( $str ) )
         {

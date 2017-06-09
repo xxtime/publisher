@@ -87,9 +87,7 @@ class Qihu360 extends ProviderAbstract
         }
         $data = ksort($data);
         $sign_str = implode('#', $data);
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $qihu_cfg = $cfg->qihu360;
-        $secretkey = $qihu_cfg->secret_key;
+        $secretkey = $this->option['secret_key'];
         $sign_str = $sign_str . '#' . $secretkey;
 
         if (strtolower($sign) != strtolower(md5($sign_str))) {

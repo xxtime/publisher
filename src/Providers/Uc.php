@@ -15,20 +15,17 @@ class Uc extends ProviderAbstract
 {
     public function verifyToken($token = '', $option = [])
     {
-        $url = 'http://sdk.9game.cn/cp/account.verifySession';
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $uc_cfg = $cfg->uc;
         //md5(sid=xxxxx + apiKey) sign拼接组成是否为“sid=sid值+apikey值”，并且需要用小写
         $sign_param = [
             'sid'    => strtolower($token),
-            'apiKey' => strtolower($uc_cfg->app_key)
+            'apiKey' => strtolower($this->app_key)
         ];
         $sign = md5(implode('', $sign_param));
 
         $param = [
             'id'   => time(),
             'data' => ['sid' => $token],
-            'game' => ['gameId' => $uc_cfg->app_id],
+            'game' => ['gameId' => $this->app_id],
             'sign' => $sign
 
         ];
@@ -85,11 +82,8 @@ class Uc extends ProviderAbstract
             throw new DefaultException('error oder');
         }
 
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $uc_cfg = $cfg->uc;
-
         //app_id验证
-        if ($responseData['data']['gameId'] != $uc_cfg->app_id) {
+        if ($responseData['data']['gameId'] != $this->app_id) {
             throw new DefaultException('error gameId');
         }
 
@@ -105,7 +99,7 @@ class Uc extends ProviderAbstract
         $param['cpOrderId'] = $responseData['data']['cpOrderId'];
         $sign = $responseData['sign'];
 
-        $this->check_sign($param, $sign, $uc_cfg->app_key);
+        $this->check_sign($param, $sign, $this->app_key);
 
         return [
             'transactionId'        => $param['cpOrderId'],

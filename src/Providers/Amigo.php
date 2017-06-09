@@ -15,11 +15,9 @@ class Amigo extends ProviderAbstract{
     //金立登陆验证
     public function verifyToken($token = '', $option = [])
     {
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $amigo_cfg = $cfg->amigo;
         $url = 'https://id.gionee.com/account/verify.do';
-        $apiKey = $amigo_cfg->app_key;
-        $secretKey = $amigo_cfg->secret_key;
+        $apiKey = $this->app_key;
+        $secretKey = $this->option['secret_key'];
         $host = "id.gionee.com";
         $port = "443";
         $uri = "/account/verify.do";
@@ -126,11 +124,8 @@ class Amigo extends ProviderAbstract{
      */
     public function rsa_verify( $data, $sign )
     {
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $amigo_cfg = $cfg->amigo;
-
         $public_key = "-----BEGIN PUBLIC KEY-----\n" .
-            chunk_split($amigo_cfg->public_key, 64, "\n") .
+            chunk_split($this->option['public_key'], 64, "\n") .
             '-----END PUBLIC KEY-----';
 
         $pubKeyId = openssl_pkey_get_public( $public_key );

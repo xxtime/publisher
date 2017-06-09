@@ -15,12 +15,10 @@ class Oppo extends ProviderAbstract{
     //oppo登陆验证
     public function verifyToken($token = '', $option = [])
     {
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $oppo_cfg = $cfg->oppo;
         $url = 'http://i.open.game.oppomobile.com/gameopen/user/fileIdInfo';
         $request_serverUrl   = $url."?fileId=".$option['ssoid']."&token=".$token;
         $time                = microtime(true);
-        $dataParams['oauthConsumerKey'] 	= $oppo_cfg->app_key;
+        $dataParams['oauthConsumerKey'] 	= $this->app_key;
         $dataParams['oauthToken'] 			= $token;
         $dataParams['oauthSignatureMethod'] = "HMAC-SHA1";
         $dataParams['oauthTimestamp'] 		= intval($time*1000);
@@ -28,7 +26,7 @@ class Oppo extends ProviderAbstract{
         $dataParams['oauthVersion'] 		= "1.0";
         $requestString 						= $this->_assemblyParameters($dataParams);
 
-        $oauthSignature = $oppo_cfg->secret_key."&";
+        $oauthSignature = $this->option['secret_key']."&";
         $sign 			= $this->_signatureNew($oauthSignature,$requestString);
         $result 		= $this->http_curl_post($request_serverUrl);
         $result 		= 	json_decode($result,true);			//结果也是一个json格式字符串
@@ -142,12 +140,8 @@ class Oppo extends ProviderAbstract{
 
     private function verify_sign( $data, $sign )
     {
-
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $oppo_cfg = $cfg->oppo;
-
         $public_key = "-----BEGIN PUBLIC KEY-----\n" .
-            chunk_split($oppo_cfg->public_key, 64, "\n") .
+            chunk_split($this->option['public_key'], 64, "\n") .
             '-----END PUBLIC KEY-----';
 
         $public_key_id = openssl_pkey_get_public( $public_key );

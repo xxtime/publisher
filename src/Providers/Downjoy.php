@@ -16,13 +16,9 @@ class downjoy extends ProviderAbstract
 
     public function verifyToken($token = '', $option = [])
     {
-
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $down_cfg = $cfg->downjoy;
-
         $param = [
-            'appid'  => $down_cfg->app_id,
-            'appkey' => $down_cfg->app_key,
+            'appid'  => $this->app_id,
+            'appkey' => $this->app_key,
             'token'  => $token,
             'umid'   => $option['uid']
         ];
@@ -62,13 +58,10 @@ class downjoy extends ProviderAbstract
             throw new DefaultException('payStatus failure');
         }
 
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $downjoy_cfg = $cfg->downjoy;
-
         //验证签名
         $sign = $this->request->get('signature');
 
-        $this->check_sign($sign, $downjoy_cfg->payment_key);
+        $this->check_sign($sign, $this->option['payment_key']);
 
         //数据组装
         $transactionId = $this->request->get('cpOrder');

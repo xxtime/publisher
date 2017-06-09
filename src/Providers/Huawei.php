@@ -15,13 +15,10 @@ class Huawei extends ProviderAbstract{
     //华为登陆验证
     public function verifyToken($token = '', $option = [])
     {
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $huawei_cfg = $cfg->huawei;
-
-        $content = $huawei_cfg->app_id.$option['custom'].$option['uid'];
+        $content = $this->app_id.$option['custom'].$option['uid'];
 
         $public_key = "-----BEGIN PUBLIC KEY-----\n" .
-            chunk_split($huawei_cfg->public_key, 64, "\n") .
+            chunk_split($this->option['public_key'], 64, "\n") .
             '-----END PUBLIC KEY-----';
 
         $openssl_public_key = openssl_get_publickey($public_key);
@@ -78,11 +75,8 @@ class Huawei extends ProviderAbstract{
         unset($data['_url'], $data['plat'], $data['sign'], $data['signType'], $data['zone'], $data['gameid']);
         ksort($data);
 
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $huawei_cfg = $cfg->huawei;
-
         $public_key = "-----BEGIN PUBLIC KEY-----\n" .
-            chunk_split($huawei_cfg->public_key, 64, "\n") .
+            chunk_split($this->option['public_key'], 64, "\n") .
             '-----END PUBLIC KEY-----';
 
         $pubKeyId = openssl_pkey_get_public($public_key);

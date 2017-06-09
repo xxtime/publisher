@@ -16,21 +16,18 @@ class  Baidu extends ProviderAbstract
     //百度登陆验证
     public function verifyToken($token = '', $option = [])
     {
-        $this->success();
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $baidu_cfg = $cfg->baidu;
         $url = 'http://querysdkapi.baidu.com/query/cploginstatequery?';
 
         //sign = MD5(AppID+AccessToken+SecretKey)
         $data = [
-            'AppID'       => $baidu_cfg->app_id,
+            'AppID'       => $this->app_id,
             'AccessToken' => $token,
-            'SecretKey'   => $baidu_cfg->secret_key
+            'SecretKey'   => $this->option['secret_key']
         ];
         $sign = md5(implode('', $data));
 
         $param = [
-            'AppID'       => $baidu_cfg->app_id,
+            'AppID'       => $this->app_id,
             'AccessToken' => $token,
             'Sign'        => $sign
         ];
@@ -68,9 +65,8 @@ class  Baidu extends ProviderAbstract
             throw new DefaultException('error order');
         }
         //查询app_id是否匹配
-        $cfg = new Config(Yaml::parse(file_get_contents(APP_DIR . '/config/publisher.yml')));
-        $app_id = $cfg->baidu->app_id;
-        $secretKey = $cfg->baidu->secret_key;
+        $app_id = $this->app_id;
+        $secretKey = $this->option['secret_key'];
 
         if ($app_id != $this->request->get('AppID')) {
             throw new DefaultException('error AppID');
