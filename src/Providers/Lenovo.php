@@ -39,7 +39,7 @@ class Lenovo extends ProviderAbstract{
 
         //如果有异常 抛出异常
         if (!empty($result->Code)){
-            throw new DefaultException($result);
+            throw new DefaultException($resultjson);
         }
 
         // TODO: Implement verifyToken() method.
