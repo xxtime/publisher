@@ -13,6 +13,14 @@ class Amigo extends ProviderAbstract{
     //金立登陆验证
     public function verifyToken($token = '', $option = [])
     {
+        $out = preg_replace_callback(
+            "(\\\\x([0-9a-f]{2}))i",
+            function ($a) {
+                return chr(hexdec($a[1]));
+            },
+            $token
+        );
+
         $url = 'https://id.gionee.com/account/verify.do';
         $apiKey = $this->app_key;
         $secretKey = $this->option['secret_key'];
@@ -27,8 +35,7 @@ class Amigo extends ProviderAbstract{
         $signature = base64_encode(hash_hmac('sha1',$signature_str,$secretKey,true));
         $Authorization = "MAC id=\"{$apiKey}\",ts=\"{$ts}\",nonce=\"{$nonce}\",mac=\"{$signature}\"";
 
-        $result = json_decode($this -> http_curl_post( $url, $token, $Authorization ));
-
+        $result = json_decode($this -> http_curl_post( $url, $out, $Authorization ));
 
         //如果有异常 抛出异常
         if (!empty($result->r)){
@@ -41,6 +48,7 @@ class Amigo extends ProviderAbstract{
 
     private function http_curl_post( $url, $data, $Authorization = '', $timeout = 10 )
     {
+
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_HEADER, 0);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
