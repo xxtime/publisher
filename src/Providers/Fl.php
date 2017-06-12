@@ -16,7 +16,7 @@ class Fl extends ProviderAbstract
     {
         //md5 验证
         $data = [
-            'timestamp' => $_REQUEST['timestamp'],
+            'timestamp' => $option['custom'],
             'uid' => $option['uid'],
             'SECRETKEY' => $this->option['secret_key']
         ];
