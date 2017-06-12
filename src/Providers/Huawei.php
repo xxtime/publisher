@@ -13,6 +13,7 @@ class Huawei extends ProviderAbstract{
     //华为登陆验证
     public function verifyToken($token = '', $option = [])
     {
+        $token = str_replace(' ', '+', $token);
         $content = $this->app_id.$option['custom'].$option['uid'];
 
         $public_key = "-----BEGIN PUBLIC KEY-----\n" .
