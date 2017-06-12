@@ -35,7 +35,7 @@ class Uc extends ProviderAbstract
         return [
             'uid'      => $result['data']['accountId'],
             'username' => $result['data']['nickName'],
-            'original' => $response
+            'original' => $result
         ];
     }
 

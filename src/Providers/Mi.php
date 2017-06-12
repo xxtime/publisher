@@ -47,7 +47,7 @@ class Mi extends ProviderAbstract
         return [
             'uid'      => $option['uid'],
             'username' => '',
-            'original' => $response
+            'original' => $result
         ];
     }
 
@@ -63,26 +63,26 @@ class Mi extends ProviderAbstract
     //appId=2882303761517239138&cpOrderId=9786bffc-996d-4553-aa33-f7e92c0b29d5&orderConsumeType=10&orderId=21140990160359583390&orderStatus=TRADE_SUCCESS&payFee=1&payTime=2014-09-05%2015:20:27&productCode=com.demo_1&productCount=1&productName=%E9%93%B6%E5%AD%901%E4%B8%A4&uid=100010&signature=1388720d978021c20aa885d9b3e1b70cec751496
     public function notify()
     {
-        $orderStatus = $this->request->get('orderStatus');
+        $orderStatus = $_REQUEST['orderStatus'];
         if ($orderStatus != 'TRADE_SUCCESS') {
             throw new DefaultException('errcode:3515');
         }
 
         $app_id = $this->app_id;
-        if ($app_id != $this->request->get('appId')) {
+        if ($app_id != $_REQUEST['appId']) {
             throw new DefaultException('errcode:1515');
         }
 
-        $sign = $this->request->get('signature');              // 签名
+        $sign = $_REQUEST['signature'];              // 签名
 
         $this->check_sign($sign);
 
         return [
-            'transactionId'        => $this->request->get('cpOrderId'),
-            'transactionReference' => $this->request->get('orderId'),
+            'transactionId'        => $_REQUEST['cpOrderId'],
+            'transactionReference' => $_REQUEST['orderId'],
             'amount'               => '',
             'currency'             => '',
-            'userId'               => $this->request->get('uid')
+            'userId'               => $_REQUEST['uid']
         ];
 
     }
@@ -90,8 +90,8 @@ class Mi extends ProviderAbstract
     //appId=2882303761517239138&cpOrderId=9786bffc-996d-4553-aa33-f7e92c0b29d5&orderConsumeType=10&orderId=21140990160359583390&orderStatus=TRADE_SUCCESS&payFee=1&payTime=2014-09-05%2015:20:27&productCode=com.demo_1&productCount=1&productName=%E9%93%B6%E5%AD%901%E4%B8%A4&uid=100010&signature=1388720d978021c20aa885d9b3e1b70cec751496
     public function check_sign($sign)
     {
-        $req = $this->request->get();
-        unset($req['signature']);
+        $req = $_REQUEST;
+        unset($req['signature'], $req['_url']);
         $req = array_filter($req);
         ksort($req);
 
@@ -102,7 +102,7 @@ class Mi extends ProviderAbstract
         }
 
         $str = trim($str, '&');
-        $secret = $this->_config['app_secret'] . '==';                                                                  // 由于 .ini 文件行尾加上 == 会报错, 故在此调整
+        $secret = $this->option['SecretKey'];
 
         // hmac-sha1带密钥(secret)的哈希算法
         $signature = hash_hmac("sha1", $str, $secret, false);

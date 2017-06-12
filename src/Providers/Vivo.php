@@ -29,7 +29,7 @@ class Vivo extends ProviderAbstract
         return [
             'uid'      => $result['data']['openid'],
             'username' => '',
-            'original' => $respones
+            'original' => $result
         ];
     }
 
@@ -44,24 +44,24 @@ class Vivo extends ProviderAbstract
      */
     public function notify()
     {
-        $respCode = $this->request->get('respCode');
+        $respCode =$_REQUEST['respCode'];
         if ($respCode != 200) {
             throw new DefaultException('error order');
         }
 
-        $param['appId'] = $this->request->get('appId');
-        $param['cpId'] = $this->request->get('cpId');
-        $param['cpOrderNumber'] = $this->request->get('cpOrderNumber');
-        $param['extInfo'] = $this->request->get('extInfo');
-        $param['orderAmount'] = $this->request->get('orderAmount');
-        $param['orderNumber'] = $this->request->get('orderNumber');
-        $param['payTime'] = $this->request->get('payTime');
+        $param['appId'] = $_REQUEST['appId'];
+        $param['cpId'] = $_REQUEST['cpId'];
+        $param['cpOrderNumber'] = $_REQUEST['cpOrderNumber'];
+        $param['extInfo'] = $_REQUEST['extInfo'];
+        $param['orderAmount'] = $_REQUEST['orderAmount'];
+        $param['orderNumber'] = $_REQUEST['orderNumber'];
+        $param['payTime'] = $_REQUEST['payTime'];
         $param['respCode'] = $respCode;
-        $param['respMsg'] = $this->request->get('respMsg');
-        $param['tradeStatus'] = $this->request->get('tradeStatus');
-        $param['tradeType'] = $this->request->get('tradeType');
-        $param['uid'] = $this->request->get('uid');
-        $sign = $this->request->get('signature');
+        $param['respMsg'] = $_REQUEST['respMsg'];
+        $param['tradeStatus'] = $_REQUEST['tradeStatus'];
+        $param['tradeType'] = $_REQUEST['tradeType'];
+        $param['uid'] = $_REQUEST['uid'];
+        $sign = $_REQUEST['signature'];
 
         $this->check_sign($param, $sign);
 

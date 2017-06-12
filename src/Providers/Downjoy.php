@@ -32,7 +32,7 @@ class downjoy extends ProviderAbstract
             return [
                 'uid'      => $option['uid'],
                 'username' => '',
-                'original' => $response
+                'original' => $result
             ];
         }
         //如果验证失败就抛出异常
@@ -51,22 +51,22 @@ class downjoy extends ProviderAbstract
     public function notify()
     {
         //支付状态
-        $payStatus = $this->request->get('result');
+        $payStatus = $_REQUEST['result'];
         if (!$payStatus) {
             throw new DefaultException('payStatus failure');
         }
 
         //验证签名
-        $sign = $this->request->get('signature');
+        $sign = $_REQUEST['signature'];
 
         $this->check_sign($sign, $this->option['payment_key']);
 
         //数据组装
-        $transactionId = $this->request->get('cpOrder');
-        $transactionReference = $this->request->get('order');
-        $amount = $this->request->get('money');
+        $transactionId = $_REQUEST['cpOrder'];
+        $transactionReference = $_REQUEST['order'];
+        $amount = $_REQUEST['money'];
         $currency = '';
-        $userId = $this->request->get('mid');
+        $userId = $_REQUEST['mid'];
 
         return [
             'transactionId'        => $transactionId,
@@ -84,9 +84,9 @@ class downjoy extends ProviderAbstract
 
     private function check_sign($sign, $key)
     {
-        $req = $this->request->get();
+        $req = $_REQUEST;
 
-        //数据组装 按照特定个的顺序
+        //数据组装 按照特定的顺序
         $data = [
             'order'   => $req['order'],
             'money'   => $req['money'],
