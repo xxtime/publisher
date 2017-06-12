@@ -58,7 +58,7 @@ class  Baidu extends ProviderAbstract
      */
     public function notify()
     {
-        $data = json_decode(base64_decode($this->request->get('Conent')), true);
+        $data = json_decode(base64_decode($_REQUEST['Conent']), true);
         if ($data['OrderStatus'] == 0) {
             throw new DefaultException('error order');
         }
@@ -66,11 +66,11 @@ class  Baidu extends ProviderAbstract
         $app_id = $this->app_id;
         $secretKey = $this->option['secret_key'];
 
-        if ($app_id != $this->request->get('AppID')) {
+        if ($app_id != $_REQUEST['AppID']) {
             throw new DefaultException('error AppID');
         }
 
-        $sign = $this->request->get('Sign');
+        $sign = $_REQUEST['Sign'];
 
         //验证签名
         $this->check_sign($data, $sign, $secretKey);
@@ -94,8 +94,7 @@ class  Baidu extends ProviderAbstract
 
     private function check_sign($data, $sign, $secretKey)
     {
-
-        $req = $this->requet->get();
+        $req = $_REQUEST;
 
         $dataArr = [
             'AppID'                 => $req['AppID'],
