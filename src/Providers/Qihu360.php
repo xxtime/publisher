@@ -22,7 +22,7 @@ class Qihu360 extends ProviderAbstract
             return [
                 'uid'      => $result['id'],
                 'username' => $result['name'],
-                'original' => $result
+                'original' => (array)$result
             ];
         }
 

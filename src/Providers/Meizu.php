@@ -77,23 +77,23 @@ class Meizu extends ProviderAbstract{
      */
     public function notify(){
         // 订单未成功则不处理
-        $trade_status = $this->request->get( 'trade_status' );
+        $trade_status = $_REQUEST[ 'trade_status' ];
         if( $trade_status != '3' )
         {
             throw new DefaultException('fail');
         }
 
         // 平台参数
-        $param['amount'] = $this->request->get( 'total_price' );            // 总价               二选一(product_sn|amount)
+        $param['amount'] = $_REQUEST[ 'total_price' ];            // 总价               二选一(product_sn|amount)
 
-        $param['transactionId'] = $this->request->get( 'cp_order_id' );          // 订单id             可选
+        $param['transactionId'] = $_REQUEST[ 'cp_order_id' ];          // 订单id             可选
 
         // 自定义参数
         $param['currency'] = 'CNY';                                        // 货币类型
 
         // 第三方参数【可选,暂未使用】
-        $param['transactionReference'] = $this->request->get( 'order_id' );     // 第三方订单ID
-        $param['userId'] = $this->request->get( 'uid' );           // 第三方账号ID
+        $param['transactionReference'] = $_REQUEST[ 'order_id' ];     // 第三方订单ID
+        $param['userId'] = $_REQUEST[ 'uid' ];           // 第三方账号ID
 
         // 检查签名
         $this -> check_sign( $param['sign'] );
@@ -104,7 +104,7 @@ class Meizu extends ProviderAbstract{
     // 检查签名
     public function check_sign( $sign = '' )
     {
-        $req = $this->request->get();
+        $req = $_REQUEST;
         $data = array(
             'app_id'            => $req['app_id'],
             'buy_amount'        => $req['buy_amount'],

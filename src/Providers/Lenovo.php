@@ -62,7 +62,7 @@ class Lenovo extends ProviderAbstract{
     ];
      */
     public function notify(){
-        $data = json_decode( $this->request->get( 'transdata' ), true );
+        $data = json_decode( $_REQUEST[ 'transdata' ], true );
 
         if( empty( $data ) )
         {
@@ -80,8 +80,8 @@ class Lenovo extends ProviderAbstract{
         $param['currency'] = 'CNY';                                        // 货币类型
 
         // 第三方参数【可选,暂未使用】
-        $param['transactionReference'] = $this->request->get('transid');            // 第三方订单ID
-        $param['userId'] = $this->request->get('partner_user_id');     // 第三方账号ID
+        $param['transactionReference'] = $_REQUEST['transid'];            // 第三方订单ID
+        $param['userId'] = $_REQUEST['partner_user_id'];     // 第三方账号ID
 
         // 检查签名
         $this -> check_sign( $param['sign'] );
@@ -92,7 +92,7 @@ class Lenovo extends ProviderAbstract{
     // 检查签名
     public function check_sign( $sign = '' )
     {
-        $req = $this->request->get( 'transdata' );
+        $req = $_REQUEST[ 'transdata' ];
 
         $private_key = "-----BEGIN PUBLIC KEY-----\n" .
             chunk_split($this->option['private_key'], 64, "\n") .

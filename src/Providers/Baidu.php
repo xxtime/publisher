@@ -44,7 +44,7 @@ class  Baidu extends ProviderAbstract
 
 
         // TODO: Implement verifyToken() method.
-        return array('uid' => $content['UID'], 'username' => '', 'original' => $content);
+        return array('uid' => $content['UID'], 'username' => '', 'original' => (array)$result);
     }
 
     /**

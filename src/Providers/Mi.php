@@ -47,7 +47,7 @@ class Mi extends ProviderAbstract
         return [
             'uid'      => $option['uid'],
             'username' => '',
-            'original' => $result
+            'original' => (array)$result
         ];
     }
 

@@ -29,7 +29,7 @@ class Vivo extends ProviderAbstract
         return [
             'uid'      => $result['data']['openid'],
             'username' => '',
-            'original' => $result
+            'original' => (array)$result
         ];
     }
 

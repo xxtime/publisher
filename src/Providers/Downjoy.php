@@ -32,7 +32,7 @@ class downjoy extends ProviderAbstract
             return [
                 'uid'      => $option['uid'],
                 'username' => '',
-                'original' => $result
+                'original' => (array)$result
             ];
         }
         //如果验证失败就抛出异常
