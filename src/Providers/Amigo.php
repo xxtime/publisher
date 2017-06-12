@@ -43,7 +43,7 @@ class Amigo extends ProviderAbstract{
         }
 
         // TODO: Implement verifyToken() method.
-        return array('uid' => '', 'username' => '', 'original' => $result);
+        return array('uid' => $option['uid'], 'username' => '', 'original' => $result);
     }
 
     private function http_curl_post( $url, $data, $Authorization = '', $timeout = 10 )
