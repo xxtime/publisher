@@ -8,8 +8,6 @@
 namespace Xt\Publisher\Providers;
 
 use Xt\Publisher\DefaultException;
-use Phalcon\Config;
-use Symfony\Component\Yaml\Yaml;
 
 class Vivo extends ProviderAbstract
 {

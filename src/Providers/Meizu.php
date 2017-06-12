@@ -7,8 +7,6 @@
  */
 namespace Xt\Publisher\Providers;
 
-use Phalcon\Config;
-use Symfony\Component\Yaml\Yaml;
 use Xt\Publisher\DefaultException;
 
 class Meizu extends ProviderAbstract{
