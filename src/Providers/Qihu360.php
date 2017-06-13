@@ -95,7 +95,7 @@ class Qihu360 extends ProviderAbstract
 
     public function success()
     {
-        $data =  [
+        $data = [
             'status'   => 'ok',
             'delivery' => 'success',
             'msg'      => 'success'

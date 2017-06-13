@@ -55,14 +55,12 @@ class Huawei extends ProviderAbstract
         parse_str($oriContent, $data);
 
         // 平台参数
-        $param['amount'] = round($data['amount'], 2);           // 总价.单位:分               二选一(product_sn|amount)
-        $param['transactionId'] = $data['requestId'];                // 订单id             可选
+        $param['amount'] = round($data['amount'], 2);                           // 总价.单位:分
+        $param['transactionId'] = $data['requestId'];                          // 订单id
         // 支付方式
-        $param['currency'] = 'CNY';                                              // 货币类型
-
-        // 第三方参数【可选,暂未使用】
-        $param['transactionReference'] = $data['order_id'];           // 第三方订单ID
-        $param['userId'] = '';                           // 签名
+        $param['currency'] = 'CNY';                                             // 货币类型
+        $param['transactionReference'] = $data['order_id'];                   // 第三方订单ID
+        $param['userId'] = '';                                                   // 签名
 
         // 检查签名
         $this->check_sign($data['sign'], $data);

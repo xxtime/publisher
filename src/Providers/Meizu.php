@@ -9,41 +9,42 @@ namespace Xt\Publisher\Providers;
 
 use Xt\Publisher\DefaultException;
 
-class Meizu extends ProviderAbstract{
+class Meizu extends ProviderAbstract
+{
     //魅族登陆验证
     public function verifyToken($token = '', $option = [])
     {
         $url = 'https://api.game.meizu.com/game/security/checksession';
 
         $ts = time();
-        $sign = md5('app_id='.$this->app_id.'&session_id='.$token.'&ts='.$ts.'&uid='.$option['uid'].':'.$this->option['secret_key']);
+        $sign = md5('app_id=' . $this->app_id . '&session_id=' . $token . '&ts=' . $ts . '&uid=' . $option['uid'] . ':' . $this->option['secret_key']);
 
         $param = [
-            'app_id'   => $this->app_id,
+            'app_id'     => $this->app_id,
             'session_id' => $token,
-            'uid' => $option['uid'],
-            'ts' => $ts,
-            'sign_type' => 'md5',
-            'sign' => $sign,
+            'uid'        => $option['uid'],
+            'ts'         => $ts,
+            'sign_type'  => 'md5',
+            'sign'       => $sign,
         ];
 
         $param = http_build_query($param);
 
         $response = file_get_contents($url, false, stream_context_create(array(
             'http' => array(
-                'protocol_version'=>'1.1',
-                'timeout' => 30,
-                'method' => 'POST',
-                'header' => 'Content-Type:application/x-www-form-urlencoded;',
-                'user_agent'=>'xxtime.com',
-                'content' => $param // 字符串
+                'protocol_version' => '1.1',
+                'timeout'          => 30,
+                'method'           => 'POST',
+                'header'           => 'Content-Type:application/x-www-form-urlencoded;',
+                'user_agent'       => 'xxtime.com',
+                'content'          => $param // 字符串
             )
         )));
 
         $result = json_decode($response, true);
 
         //如果有异常 抛出异常
-        if ($result['code'] != 200){
+        if ($result['code'] != 200) {
             throw new DefaultException($result['message']);
         }
 
@@ -68,41 +69,36 @@ class Meizu extends ProviderAbstract{
 
     /**
      *  return [
-    'transactionId'        => '20170526024456001467000368', // 平台订单ID;   重要参数
-    'transactionReference' => '1234567890',                 // 发行商订单ID; 必选参数
-    'amount'               => 4.99,                         // 充值金额
-    'currency'             => 'CNY',                        // 货币类型
-    'userId'               => '3001-2001234',               // 终端用户ID
-    ];
+     * 'transactionId'        => '20170526024456001467000368', // 平台订单ID;   重要参数
+     * 'transactionReference' => '1234567890',                 // 发行商订单ID; 必选参数
+     * 'amount'               => 4.99,                         // 充值金额
+     * 'currency'             => 'CNY',                        // 货币类型
+     * 'userId'               => '3001-2001234',               // 终端用户ID
+     * ];
      */
-    public function notify(){
+    public function notify()
+    {
         // 订单未成功则不处理
-        $trade_status = $_REQUEST[ 'trade_status' ];
-        if( $trade_status != '3' )
-        {
+        $trade_status = $_REQUEST['trade_status'];
+        if ($trade_status != '3') {
             throw new DefaultException('fail');
         }
 
         // 平台参数
-        $param['amount'] = $_REQUEST[ 'total_price' ];            // 总价               二选一(product_sn|amount)
-
-        $param['transactionId'] = $_REQUEST[ 'cp_order_id' ];          // 订单id             可选
-
-        // 自定义参数
-        $param['currency'] = 'CNY';                                        // 货币类型
-
-        // 第三方参数【可选,暂未使用】
-        $param['transactionReference'] = $_REQUEST[ 'order_id' ];     // 第三方订单ID
-        $param['userId'] = $_REQUEST[ 'uid' ];           // 第三方账号ID
+        $param['amount'] = $_REQUEST['total_price'];                    // 总价
+        $param['transactionId'] = $_REQUEST['cp_order_id'];            // 订单id
+        $param['currency'] = 'CNY';                                      // 货币类型
+        $param['transactionReference'] = $_REQUEST['order_id'];        // 第三方订单ID
+        $param['userId'] = $_REQUEST['uid'];                             // 第三方账号ID
 
         // 检查签名
-        $this -> check_sign( $param['sign'] );
+        $this->check_sign($param['sign']);
 
         return $param;
     }
 
     // 检查签名
-    public function check_sign( $sign = '' )
+    public function check_sign($sign = '')
     {
         $req = $_REQUEST;
         $data = array(
@@ -126,15 +122,13 @@ class Meizu extends ProviderAbstract{
         );
 
         $str = '';
-        foreach( $data as $k => $v )
-        {
+        foreach ($data as $k => $v) {
             $str .= "$k=$v&";
         }
-        $str = trim( $str, '&' );
+        $str = trim($str, '&');
         $str = $str . ':' . $this->option['secret_key'];
 
-        if( strtolower( $sign ) != md5( $str ) )
-        {
+        if (strtolower($sign) != md5($str)) {
             throw new DefaultException('sign error');
         }
     }
@@ -142,7 +136,7 @@ class Meizu extends ProviderAbstract{
 
     public function success()
     {
-        echo json_encode(array('code'=>200,'message'=>'','value'=>'','redirect'=>''));
+        echo json_encode(array('code' => 200, 'message' => '', 'value' => '', 'redirect' => ''));
         exit;
     }
 }

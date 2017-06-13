@@ -44,7 +44,7 @@ class Vivo extends ProviderAbstract
      */
     public function notify()
     {
-        $respCode =$_REQUEST['respCode'];
+        $respCode = $_REQUEST['respCode'];
         if ($respCode != 200) {
             throw new DefaultException('error order');
         }
