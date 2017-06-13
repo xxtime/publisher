@@ -14,21 +14,20 @@ class Oppo extends ProviderAbstract
     //oppo登陆验证
     public function verifyToken($token = '', $option = [])
     {
-        $token = str_replace(' ', '+', $token);
+        $token = str_replace(' ', '%2B', $token);
         $url = 'http://i.open.game.oppomobile.com/gameopen/user/fileIdInfo';
-        $request_serverUrl = $url . "?fileId=" . $option['uid'] . "&token=" . $token;
+        $request_serverUrl = $url . "?fileId=" . urlencode($option['uid']) . "&token=" . urlencode($token);
         $time = microtime(true);
         $dataParams['oauthConsumerKey'] = $this->app_key;
-        $dataParams['oauthToken'] = $token;
+        $dataParams['oauthToken'] = urlencode($token);
         $dataParams['oauthSignatureMethod'] = "HMAC-SHA1";
         $dataParams['oauthTimestamp'] = intval($time * 1000);
         $dataParams['oauthNonce'] = intval($time) + rand(0, 9);
         $dataParams['oauthVersion'] = "1.0";
         $requestString = $this->_assemblyParameters($dataParams);
-
         $oauthSignature = $this->option['secret_key'] . "&";
-        $sign = $this->_signatureNew($oauthSignature, $requestString);
-        $result = $this->http_curl_post($request_serverUrl);
+        $sign = $this->_signatureNew($oauthSignature, $requestString);  //生成签名
+        $result = $this->OauthPostExecuteNew($sign, $requestString, $request_serverUrl);  //请求结果
         $result = json_decode($result, true);            //结果也是一个json格式字符串
 
         //如果有异常 抛出异常
@@ -37,7 +36,7 @@ class Oppo extends ProviderAbstract
         }
 
         // TODO: Implement verifyToken() method.
-        return array('uid' => $result['ssoid'], 'username' => '', 'original' => $result);
+        return array('uid' => $result['ssoid'], 'username' => $result['userName'], 'original' => $result);
     }
 
 
@@ -53,30 +52,24 @@ class Oppo extends ProviderAbstract
         return $requestString;
     }
 
+    private function OauthPostExecuteNew($sign, $requestString, $request_serverUrl)
+    {
+        $opt = array(
+            "http" => array(
+                "method" => "GET",
+                'header' => array("param:" . $requestString, "oauthsignature:" . $sign),
+            )
+        );
+        $res = file_get_contents($request_serverUrl, null, stream_context_create($opt));
+        return $res;
+    }
+
     /**
      * 使用HMAC-SHA1算法生成签名
      */
     private function _signatureNew($oauthSignature, $requestString)
     {
         return urlencode(base64_encode(hash_hmac('sha1', $requestString, $oauthSignature, true)));
-    }
-
-    private function http_curl_post($url, $Authorization = '', $timeout = 10)
-    {
-
-        $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_HEADER, 0);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
-        if (!empty($Authorization)) {
-            curl_setopt($curl, CURLOPT_HTTPHEADER, array('Authorization: ' . $Authorization));
-        }
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        $content = curl_exec($curl);
-        curl_close($curl);
-
-        return $content;
     }
 
     /**
@@ -111,7 +104,7 @@ class Oppo extends ProviderAbstract
     // 检查签名
     public function check_sign($sign = '')
     {
-        $req =$_REQUEST;
+        $req = $_REQUEST;
         $data = array(
             'notifyId'     => $req['notifyId'],
             'partnerOrder' => $req['partnerOrder'],
