@@ -58,7 +58,7 @@ class  Baidu extends ProviderAbstract
      */
     public function notify()
     {
-        $data = json_decode(base64_decode($_REQUEST['Conent']), true);
+        $data = json_decode(base64_decode($_REQUEST['Content']), true);
         if ($data['OrderStatus'] == 0) {
             throw new DefaultException('error order');
         }

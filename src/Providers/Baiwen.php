@@ -17,7 +17,7 @@ class Baiwen extends ProviderAbstract
         return [
             'uid'      => $option['uid'],
             'username' => '',
-            'original' => $option
+            'original' => $option['uid']
         ];
     }
 
@@ -66,6 +66,6 @@ class Baiwen extends ProviderAbstract
 
     public function success()
     {
-        exit('success');
+        exit('true');
     }
 }
