@@ -14,7 +14,6 @@ class Baiwen extends ProviderAbstract
     //由于百文没有账号验证 故直接返回
     public function verifyToken($token = '', $option = [])
     {
-        $this->notify();
         return [
             'uid'      => $option['uid'],
             'username' => '',
