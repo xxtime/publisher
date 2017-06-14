@@ -14,7 +14,7 @@ class Oppo extends ProviderAbstract
     //oppo登陆验证
     public function verifyToken($token = '', $option = [])
     {
-        $token = str_replace(' ', '%2B', $token);
+        $token = str_replace(' ', '+', $token);
         $url = 'http://i.open.game.oppomobile.com/gameopen/user/fileIdInfo';
         $request_serverUrl = $url . "?fileId=" . urlencode($option['uid']) . "&token=" . urlencode($token);
         $time = microtime(true);
