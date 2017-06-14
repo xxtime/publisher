@@ -88,10 +88,10 @@ class Oppo extends ProviderAbstract
         $param['transactionId'] = $_REQUEST['partnerOrder'];                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
         $param['transactionReference'] = $_REQUEST['notifyId'];                           // 第三方订单ID
-        $param['userId'] = $_REQUEST['partner_user_id'];                                   // 第三方账号ID
+        $param['userId'] = '';                                   // 第三方账号ID
 
         // 检查签名
-        $this->check_sign($param['sign']);
+        $this->check_sign($_REQUEST['sign']);
 
         return $param;
     }
@@ -100,23 +100,10 @@ class Oppo extends ProviderAbstract
     public function check_sign($sign = '')
     {
         $req = $_REQUEST;
-        $data = array(
-            'notifyId'     => $req['notifyId'],
-            'partnerOrder' => $req['partnerOrder'],
-            'productName'  => $req['productName'],
-            'productDesc'  => $req['productDesc'],
-            'price'        => $req['price'],
-            'count'        => $req['count'],
-            'attach'       => $req['attach']
-        );
+        $sign = str_replace(' ', '+', $sign);
+        $str = "notifyId={$req['notifyId']}&partnerOrder={$req['partnerOrder']}&productName={$req['productName']}&productDesc={$req['productDesc']}&price={$req['price']}&count={$req['count']}&attach={$req['attach']}";
 
-        $str = '';
-        foreach ($data as $k => $v) {
-            $str .= "$k=$v&";
-        }
-        $str = trim($str, '&');
-
-        if ($this->verify_sign($str, $sign)) {
+        if (!$this->verify_sign($str, $sign)) {
             throw new DefaultException('sign error');
         }
     }
@@ -129,12 +116,12 @@ class Oppo extends ProviderAbstract
 
     private function verify_sign($data, $sign)
     {
-        $public_key = "-----BEGIN PUBLIC KEY-----\n" .
-            chunk_split($this->option['public_key'], 64, "\n") .
-            '-----END PUBLIC KEY-----';
+        $publickey= $this->option['public_key'];
 
-        $public_key_id = openssl_pkey_get_public($public_key);
-        $signature = base64_decode($sign);
+        $pem = chunk_split($publickey,64,"\n");
+        $pem = "-----BEGIN PUBLIC KEY-----\n".$pem."-----END PUBLIC KEY-----\n";
+        $public_key_id = openssl_pkey_get_public($pem);
+        $signature =base64_decode($sign);
         return openssl_verify($data, $signature, $public_key_id);                     //成功返回1,0失败，-1错误,其他看手册
     }
 }
