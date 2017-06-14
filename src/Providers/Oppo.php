@@ -103,7 +103,7 @@ class Oppo extends ProviderAbstract
         $sign = str_replace(' ', '+', $sign);
         $str = "notifyId={$req['notifyId']}&partnerOrder={$req['partnerOrder']}&productName={$req['productName']}&productDesc={$req['productDesc']}&price={$req['price']}&count={$req['count']}&attach={$req['attach']}";
 
-        if (!$this->verify_sign($str, $sign)) {
+        if ($this->verify_sign($str, $sign) != 1) {
             throw new DefaultException('sign error');
         }
     }
