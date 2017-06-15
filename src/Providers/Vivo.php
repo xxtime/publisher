@@ -11,6 +11,7 @@ use Xt\Publisher\DefaultException;
 
 class Vivo extends ProviderAbstract
 {
+
     public function verifyToken($token = '', $option = [])
     {
         $retcode = [
@@ -32,6 +33,7 @@ class Vivo extends ProviderAbstract
             'original' => (array)$result
         ];
     }
+
 
     /**
      *  return [
@@ -74,6 +76,56 @@ class Vivo extends ProviderAbstract
         ];
     }
 
+
+    /**
+     * 订单创建接口
+     * @param $parameter
+     * @return array
+     * @throws DefaultException
+     */
+    public function tradeBuild($parameter)
+    {
+        $url = 'https://pay.vivo.com.cn/vcoin/trade';
+        $query = [
+            'version'       => '1.0.0',
+            'cpId'          => $this->option['cp_id'],
+            'appId'         => $this->option['app_id'],
+            'cpOrderNumber' => $parameter['transaction'],
+            'notifyUrl'     => $this->option['notify_url'],
+            'orderTime'     => (new \DateTime('now', new \DateTimeZone('Asia/Shanghai')))->format('YmdHis'),
+            'orderAmount'   => intval($parameter['amount'] * 100),
+            'orderTitle'    => $parameter['product_name'],
+            'orderDesc'     => $parameter['product_name'],
+            'extInfo'       => $parameter['transaction']
+        ];
+        ksort($query);
+        $query['signature'] = md5(http_build_query($query) . '&' . md5($this->option['app_key'])); // TODO :: cp_key
+        $query['signMethod'] = 'MD5';
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        $result = json_decode($response, true);
+
+        if ($result['respCode'] != 200) {
+            throw new DefaultException($response);
+        }
+
+        return [
+            'transactionReference' => $result['orderNumber'],
+            'raw'                  => $result
+        ];
+    }
+
+
     private function check_sign($data, $sign)
     {
         $app_key = $this->app_key;
@@ -88,8 +140,10 @@ class Vivo extends ProviderAbstract
         }
     }
 
+
     public function success()
     {
         exit('success');
     }
+
 }

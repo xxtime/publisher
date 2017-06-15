@@ -93,4 +93,20 @@ class Publisher
         }
     }
 
+
+    /**
+     * 订单构建
+     * @param array $parameter
+     * @return mixed
+     * @throws \Xt\Publisher\DefaultException
+     */
+    public function tradeBuild($parameter = [])
+    {
+        try {
+            return $this->provider->tradeBuild($parameter);
+        } catch (DefaultException $e) {
+            throw $e;
+        }
+    }
+
 }
