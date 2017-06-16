@@ -35,12 +35,12 @@ class Feiliu extends ProviderAbstract
 
     public function notify()
     {
-        $data = json_decode($_REQUEST, true);
+        $request = file_get_contents("php://input");
+        $data = json_decode($request, true);
 
-        if ($data['status'] !== 0) {
+        if ($data['status'] !== '0') {
             throw new DefaultException('fail');
         }
-
         // 平台参数
         $param['amount'] = $data['amount'];                     // 总价.单位: 分
         $param['transaction'] = $data['flOrderId'];             // 订单id
@@ -61,16 +61,16 @@ class Feiliu extends ProviderAbstract
 
     public function check_sign($sign = '')
     {
-        $req = json_decode($_REQUEST, true);
-        unset($req['sign'], $req['_url']);
+        $request = file_get_contents("php://input");
+        $req = json_decode($request, true);
+        unset($req['sign']);
         ksort($req);
-
         $str = '';
         foreach ($req as $k => $v) {
             $str .= "$k=$v&";
         }
         $str = trim($str, '&');
-
+        $str .= $this->option['secret_key'];
         if (strtolower($sign) != md5($str)) {
             throw new DefaultException('sign error');
         }
