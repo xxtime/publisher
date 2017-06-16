@@ -67,11 +67,11 @@ class Qihu360 extends ProviderAbstract
 
         //返回数据
         return [
-            'transactionId'        => $param['order_id'],
-            'transactionReference' => $param['partner_order_id'],
-            'amount'               => round($param['amount'] / 100, 2),
-            'currency'             => '',
-            'userId'               => $param['partner_user_id']
+            'transaction' => $param['order_id'],
+            'reference'   => $param['partner_order_id'],
+            'amount'      => round($param['amount'] / 100, 2),
+            'currency'    => '',
+            'userId'      => $param['partner_user_id']
         ];
     }
 

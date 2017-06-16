@@ -100,11 +100,11 @@ class Uc extends ProviderAbstract
         $this->check_sign($param, $sign, $this->app_key);
 
         return [
-            'transactionId'        => $param['cpOrderId'],
-            'transactionReference' => $param['orderId'],
-            'amount'               => $param['amount'],
-            'currency'             => '',
-            'userId'               => $param['accountId']
+            'transaction' => $param['cpOrderId'],
+            'reference'   => $param['orderId'],
+            'amount'      => $param['amount'],
+            'currency'    => '',
+            'userId'      => $param['accountId']
         ];
     }
 

@@ -86,10 +86,10 @@ class Meizu extends ProviderAbstract
 
         // 平台参数
         $param['amount'] = $_REQUEST['total_price'];                    // 总价
-        $param['transactionId'] = $_REQUEST['cp_order_id'];            // 订单id
-        $param['currency'] = 'CNY';                                      // 货币类型
-        $param['transactionReference'] = $_REQUEST['order_id'];        // 第三方订单ID
-        $param['userId'] = $_REQUEST['uid'];                             // 第三方账号ID
+        $param['transaction'] = $_REQUEST['cp_order_id'];               // 订单id
+        $param['currency'] = 'CNY';                                     // 货币类型
+        $param['reference'] = $_REQUEST['order_id'];                    // 第三方订单ID
+        $param['userId'] = $_REQUEST['uid'];                            // 第三方账号ID
 
         // 检查签名
         $this->check_sign($param['sign']);

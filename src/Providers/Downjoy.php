@@ -69,11 +69,11 @@ class downjoy extends ProviderAbstract
         $userId = $_REQUEST['mid'];
 
         return [
-            'transactionId'        => $transactionId,
-            'transactionReference' => $transactionReference,
-            'amount'               => $amount,
-            'currency'             => $currency,
-            'userId'               => $userId
+            'transaction' => $transactionId,
+            'reference'   => $transactionReference,
+            'amount'      => $amount,
+            'currency'    => $currency,
+            'userId'      => $userId
         ];
     }
 

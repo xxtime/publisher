@@ -77,11 +77,11 @@ class Lenovo extends ProviderAbstract
         }
 
         // 平台参数
-        $param['amount'] = round($data['money'] / 100, 2);                    // 总价.单位: 分
-        $param['transactionId'] = $data['exorderno'];                        // 订单id
-        $param['currency'] = 'CNY';                                           // 货币类型
-        $param['transactionReference'] = $_REQUEST['transid'];              // 第三方订单ID
-        $param['userId'] = $_REQUEST['partner_user_id'];                     // 第三方账号ID
+        $param['amount'] = round($data['money'] / 100, 2);                      // 总价.单位: 分
+        $param['transaction'] = $data['exorderno'];                             // 订单id
+        $param['currency'] = 'CNY';                                             // 货币类型
+        $param['reference'] = $_REQUEST['transid'];                             // 第三方订单ID
+        $param['userId'] = $_REQUEST['partner_user_id'];                        // 第三方账号ID
 
         // 检查签名
         $this->check_sign($param['sign']);

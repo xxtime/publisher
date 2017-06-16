@@ -42,13 +42,13 @@ class Feiliu extends ProviderAbstract
         }
 
         // 平台参数
-        $param['amount'] = $data['amount'];                                // 总价.单位: 分
-        $param['transactionId'] = $data['flOrderId'];                      // 订单id
-        $param['currency'] = 'CNY';                                        // 货币类型
+        $param['amount'] = $data['amount'];                     // 总价.单位: 分
+        $param['transaction'] = $data['flOrderId'];             // 订单id
+        $param['currency'] = 'CNY';                             // 货币类型
 
         // 第三方参数【可选,暂未使用】
-        $param['transactionReference'] = $data['cpOrderId'];               // 第三方订单ID
-        $param['userId'] = $data['userId'];     // 第三方账号ID
+        $param['reference'] = $data['cpOrderId'];               // 第三方订单ID
+        $param['userId'] = $data['userId'];                     // 第三方账号ID
 
         // 检查签名
         $this->check_sign($data['sign']);

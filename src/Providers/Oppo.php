@@ -85,9 +85,9 @@ class Oppo extends ProviderAbstract
     {
         // 平台参数
         $param['amount'] = round($_REQUEST['price'] / 100, 2);                              // 总价.单位: 分
-        $param['transactionId'] = $_REQUEST['partnerOrder'];                              // 订单id
+        $param['transaction'] = $_REQUEST['partnerOrder'];                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
-        $param['transactionReference'] = $_REQUEST['notifyId'];                           // 第三方订单ID
+        $param['reference'] = $_REQUEST['notifyId'];                           // 第三方订单ID
         $param['userId'] = '';                                   // 第三方账号ID
 
         // 检查签名
@@ -116,12 +116,12 @@ class Oppo extends ProviderAbstract
 
     private function verify_sign($data, $sign)
     {
-        $publickey= $this->option['public_key'];
+        $publickey = $this->option['public_key'];
 
-        $pem = chunk_split($publickey,64,"\n");
-        $pem = "-----BEGIN PUBLIC KEY-----\n".$pem."-----END PUBLIC KEY-----\n";
+        $pem = chunk_split($publickey, 64, "\n");
+        $pem = "-----BEGIN PUBLIC KEY-----\n" . $pem . "-----END PUBLIC KEY-----\n";
         $public_key_id = openssl_pkey_get_public($pem);
-        $signature =base64_decode($sign);
+        $signature = base64_decode($sign);
         return openssl_verify($data, $signature, $public_key_id);                     //成功返回1,0失败，-1错误,其他看手册
     }
 }

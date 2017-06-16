@@ -78,11 +78,11 @@ class Mi extends ProviderAbstract
         $this->check_sign($sign);
 
         return [
-            'transactionId'        => $_REQUEST['cpOrderId'],
-            'transactionReference' => $_REQUEST['orderId'],
-            'amount'               => '',
-            'currency'             => '',
-            'userId'               => $_REQUEST['uid']
+            'transaction' => $_REQUEST['cpOrderId'],
+            'reference'   => $_REQUEST['orderId'],
+            'amount'      => '',
+            'currency'    => '',
+            'userId'      => $_REQUEST['uid']
         ];
 
     }

@@ -41,11 +41,11 @@ class Baiwen extends ProviderAbstract
         $this->check_sign($param, $sign);
 
         return [
-            'transactionId'        => $param['order_id'],
-            'transactionReference' => '',
-            'amount'               => $param['total_money'],
-            'currency'             => '',
-            'userId'               => $param['user_id']
+            'transaction' => $param['order_id'],
+            'reference'   => '',
+            'amount'      => $param['total_money'],
+            'currency'    => '',
+            'userId'      => $param['user_id']
         ];
 
     }

@@ -80,15 +80,15 @@ class Amigo extends ProviderAbstract
         }
 
         // 平台参数
-        $param['amount'] = $_REQUEST['deal_price'];           // 总价               二选一(product_sn|amount)
-        $param['transactionId'] = $_REQUEST['out_order_no'];       // 订单id             可选
+        $param['amount'] = $_REQUEST['deal_price'];             // 总价               二选一(product_sn|amount)
+        $param['transaction'] = $_REQUEST['out_order_no'];      // 订单id             可选
 
-        // 自定义参数                           // 支付方式
-        $param['currency'] = 'CNY';                            // 货币类型
+        // 自定义参数                                            // 支付方式
+        $param['currency'] = 'CNY';                             // 货币类型
 
         // 第三方参数【可选,暂未使用】
-        $param['transactionReference'] = $_REQUEST['partner_order_id'];   // 第三方订单ID
-        $param['userId'] = $_REQUEST['user_id'];             // 第三方账号ID
+        $param['reference'] = $_REQUEST['partner_order_id'];    // 第三方订单ID
+        $param['userId'] = $_REQUEST['user_id'];                // 第三方账号ID
 
         // 检查签名
         $this->check_sign($param['sign']);

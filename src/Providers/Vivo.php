@@ -68,11 +68,11 @@ class Vivo extends ProviderAbstract
         $this->check_sign($param, $sign);
 
         return [
-            'transactionId'        => $param['cpOrderNumber'],
-            'transactionReference' => $param['orderNumber'],
-            'amount'               => range($param['orderAmount'] / 100, 2),
-            'currency'             => '',
-            'userId'               => $param['uid']
+            'transaction' => $param['cpOrderNumber'],
+            'reference'   => $param['orderNumber'],
+            'amount'      => range($param['orderAmount'] / 100, 2),
+            'currency'    => '',
+            'userId'      => $param['uid']
         ];
     }
 
@@ -120,8 +120,8 @@ class Vivo extends ProviderAbstract
         }
 
         return [
-            'transactionReference' => $result['orderNumber'],
-            'raw'                  => $result
+            'reference' => $result['orderNumber'],
+            'raw'       => $result
         ];
     }
 
