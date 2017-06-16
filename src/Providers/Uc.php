@@ -129,4 +129,41 @@ class Uc extends ProviderAbstract
         exit('SUCCESS');
     }
 
+    /**
+     * @param array $parameter
+     *    $parameter = [
+     *        'transaction'  => '', // 平台订单ID
+     *        'amount'       => '', // 金额
+     *        'currency'     => '', // 货币种类
+     *        'product_id'   => '', // 产品ID
+     *        'product_name' => '', // 产品名称
+     *        'raw'          => '', // 用户登录发行渠道返回的原始数据， verifyToken 方法返回的 original字段
+     *    ];
+     * @return array
+     */
+    public function tradeBuild($parameter = [])
+    {
+        $data['AMOUNT'] = $parameter['amount'];
+        $data['NOTIFY_URL'] = $this->option['notify_url'];
+        $data['CP_ORDER_ID'] = $parameter['transaction'];
+        $data['ACCOUNT_ID'] = $parameter['raw']['data']['accountId'];
+        ksort($data);
+        foreach ($data as $key => $value) {
+            if (!empty($value)) {
+                unset($data[$key]);
+            }
+        }
+        $sign_data = '';
+        foreach ($parameter as $k => $v) {
+            $sign_data .= $k . '=' . $v;
+        }
+        $data['SIGN_TYPE'] = 'MD5';
+        $data['SIGN'] = md5($sign_data . $this->app_key);
+        return [
+            'reference' => '',      // 发行商订单号
+            'raw'       => [
+                'data' => $data,
+            ]       // 发行渠道返回的原始信息, 也可添加额外参数
+        ];
+    }
 }
