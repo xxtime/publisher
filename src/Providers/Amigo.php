@@ -177,8 +177,8 @@ class Amigo extends ProviderAbstract
         ksort( $params );
 
         // 生成签名
-        $sign = $this -> rsa_sign( implode( '', $params ) );
-        $params['sign']  = $sign;
+        $sign = $this->rsa_sign(implode('', $params));
+        $params['sign'] = $sign;
 
         $verified = $this -> http_curl_post( $url, json_encode( $params ) );
 

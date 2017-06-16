@@ -30,7 +30,8 @@ class Huawei extends ProviderAbstract
         if (!$ok) {
             throw new DefaultException('login failed');
         }
-        return array('uid' => $option['uid'], 'username' => '', 'original' => 'success');
+        $result['uid'] = $option['uid'];
+        return array('uid' => $option['uid'], 'username' => '', 'original' => $result);
     }
 
 
@@ -95,6 +96,57 @@ class Huawei extends ProviderAbstract
     {
         echo json_encode(array('result' => 0));
         exit;
+    }
+
+    /**
+     * @param array $parameter
+     *    $parameter = [
+     *        'transaction'  => '', // 平台订单ID
+     *        'amount'       => '', // 金额
+     *        'currency'     => '', // 货币种类
+     *        'product_id'   => '', // 产品ID
+     *        'product_name' => '', // 产品名称
+     *        'raw'          => '', // 用户登录发行渠道返回的原始数据， verifyToken 方法返回的 original字段
+     *    ];
+     * @return array
+     */
+    public function tradeBuild($parameter = [])
+    {
+        $data['userName'] = $parameter['raw']['uid'];
+        $data['userID'] = $parameter['raw']['uid'];
+        $data['applicationID'] = $this->app_id;
+        $data['amount'] = $parameter['amount'];
+        $data['productName'] = $parameter['product_name'];
+        $data['requestId'] = $parameter['transaction'];
+        $data['productDesc'] = $parameter['product_name'];
+
+        ksort($data);
+        $str = '';
+        foreach ($data as $k => $v) {
+            $str .= "$k=$v&";
+        }
+        $str = trim($str, '&');
+
+        // 生成签名
+        $sign = $this->rsa_sign($str);
+        $data['sign'] = $sign;
+
+        return [
+            'reference' => '',      // 发行商订单号
+            'raw'       => $data       // 发行渠道返回的原始信息, 也可添加额外参数
+        ];
+    }
+
+    private function rsa_sign($str)
+    {
+        $private_key = "-----BEGIN PUBLIC KEY-----\n" .
+            chunk_split($this->option['private_key'], 64, "\n") .
+            '-----END PUBLIC KEY-----';
+        $private_key_id = openssl_pkey_get_private($private_key);
+        $signature = false;
+        openssl_sign($str, $signature, $private_key_id);
+        $sign = base64_encode($signature);
+        return $sign;
     }
 
 }
