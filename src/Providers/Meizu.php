@@ -48,6 +48,7 @@ class Meizu extends ProviderAbstract
             throw new DefaultException($result['message']);
         }
 
+        $result['uid'] = $option['uid'];
         // TODO: Implement verifyToken() method.
         return array('uid' => $option['uid'], 'username' => '', 'original' => $result);
     }
@@ -88,11 +89,11 @@ class Meizu extends ProviderAbstract
         $param['amount'] = $_REQUEST['total_price'];                    // 总价
         $param['transaction'] = $_REQUEST['cp_order_id'];               // 订单id
         $param['currency'] = 'CNY';                                     // 货币类型
-        $param['reference'] = $_REQUEST['order_id'];                    // 第三方订单ID
-        $param['userId'] = $_REQUEST['uid'];                            // 第三方账号ID
+        $param['reference'] = '';                    // 第三方订单ID
+        $param['userId'] = '';                            // 第三方账号ID
 
         // 检查签名
-        $this->check_sign($param['sign']);
+        $this->check_sign($_REQUEST['sign']);
 
         return $param;
     }
@@ -138,5 +139,52 @@ class Meizu extends ProviderAbstract
     {
         echo json_encode(array('code' => 200, 'message' => '', 'value' => '', 'redirect' => ''));
         exit;
+    }
+
+    /**
+     * @param array $parameter
+     *    $parameter = [
+     *        'transaction'  => '', // 平台订单ID
+     *        'amount'       => '', // 金额
+     *        'currency'     => '', // 货币种类
+     *        'product_id'   => '', // 产品ID
+     *        'product_name' => '', // 产品名称
+     *        'raw'          => '', // 用户登录发行渠道返回的原始数据， verifyToken 方法返回的 original字段
+     *    ];
+     * @return array
+     */
+    public function tradeBuild($parameter = [])
+    {
+        $time = time();
+
+        $data = array(
+            'app_id'            => $this->app_id,
+            'buy_amount'        => 1,
+            'cp_order_id'       => $parameter['transaction'],
+            'create_time'       => $time,
+            'pay_type'          => 0,
+            'product_body'      => $parameter['product_name'],
+            'product_id'        => $parameter['product_id'],
+            'product_per_price' => (string)$parameter['amount'],
+            'product_subject'   => '购买' . (int)$parameter['amount'] . '枚金币',
+            'product_unit'      => '',
+            'total_price'       => (string)$parameter['amount'],
+            'uid'               => $parameter['raw']['uid'],
+            'user_info'         => $parameter['raw'],
+        );
+
+        $str = '';
+        foreach ($data as $k => $v) {
+            $str .= "$k=$v&";
+        }
+        $str = trim($str, '&');
+        $str = $str . ':' . $this->option['secret_key'];
+        $data['sign_type'] = 'md5';
+        $data['sign'] = md5($str . ':' . $this->option['secret_key']);
+
+        return [
+            'reference' => '',   // 发行商订单号
+            'raw'       => $data    // 原始返回数组
+        ];
     }
 }

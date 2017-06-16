@@ -38,6 +38,7 @@ class Amigo extends ProviderAbstract
             throw new DefaultException($result['err']);
         }
 
+        $result['uid'] = $option['uid'];
         return array('uid' => $option['uid'], 'username' => '', 'original' => $result);
     }
 
@@ -91,7 +92,7 @@ class Amigo extends ProviderAbstract
         $param['userId'] = $_REQUEST['user_id'];                // 第三方账号ID
 
         // 检查签名
-        $this->check_sign($param['sign']);
+        $this->check_sign($_REQUEST['sign']);
 
         return $param;
     }
@@ -140,6 +141,68 @@ class Amigo extends ProviderAbstract
     public function success()
     {
         exit('success');
+    }
+
+    /**
+     * @param array $parameter
+     *    $parameter = [
+     *        'transaction'  => '', // 平台订单ID
+     *        'amount'       => '', // 金额
+     *        'currency'     => '', // 货币种类
+     *        'product_id'   => '', // 产品ID
+     *        'product_name' => '', // 产品名称
+     *        'raw'          => '', // 用户登录发行渠道返回的原始数据， verifyToken 方法返回的 original字段
+     *    ];
+     * @return array
+     */
+    public function tradeBuild($parameter = [])
+    {
+        $time = time();
+
+        $url = 'https://pay.gionee.com/order/create';
+
+        $params = array(
+            'user_id'     => $parameter['raw']['uid'],                               // 必填.用户唯一标识(不参与签名), 该值来至于token验证后金立返回的值
+            'api_key'       => $this->app_key,                     // 必填.商户申请的 APIKey
+            'deal_price'    => $parameter['amount'],                                 // 必填.商品总金额
+            'deliver_type'  => '1',                                             // 必填.付款方式: 1.立即付款 2.货到付款 (目前只支持1,文档20160317)
+            'expire_time'   => date( 'YmdHis', $time + ( 30 * 60 ) ),          // 可选.订单的过期时间, 值不为空则必须参加签名
+            //'notify_url'    => '',                                            // 可选.
+            'out_order_no'  => $parameter['transaction'],                               // 必填.订单ID
+            'subject'       => $parameter['product_name'],                                   // 必填.商品名称
+            'submit_time'   => date( 'YmdHis', $time ),                        // 必填.订单提交时间
+            'total_fee'     => $parameter['amount']                                  // 必填.需付金额, 值必须等于商品总金额
+        );
+
+        ksort( $params );
+
+        // 生成签名
+        $sign = $this -> rsa_sign( implode( '', $params ) );
+        $params['sign']  = $sign;
+
+        $verified = $this -> http_curl_post( $url, json_encode( $params ) );
+
+        return [
+            'reference' => '',      // 发行商订单号
+            'raw'       => $verified       // 发行渠道返回的原始信息, 也可添加额外参数
+        ];
+    }
+
+    /**
+     * des: 金立自定义-创建订单-验签方式
+     * @param $str
+     * @return string
+     */
+    private function rsa_sign( $str )
+    {
+        $private_key = "-----BEGIN PUBLIC KEY-----\n" .
+            chunk_split($this->option['private_key'], 64, "\n") .
+            '-----END PUBLIC KEY-----';
+        $private_key_id = openssl_pkey_get_private( $private_key );
+        $signature = false;
+        openssl_sign( $str, $signature, $private_key_id );
+        $sign =  base64_encode( $signature );
+        return $sign;
     }
 
 }
