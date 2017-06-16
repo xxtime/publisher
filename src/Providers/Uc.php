@@ -161,9 +161,7 @@ class Uc extends ProviderAbstract
         $data['SIGN'] = md5($sign_data . $this->app_key);
         return [
             'reference' => '',      // 发行商订单号
-            'raw'       => [
-                'data' => $data,
-            ]       // 发行渠道返回的原始信息, 也可添加额外参数
+            'raw'       => $data   // 发行渠道返回的原始信息, 也可添加额外参数
         ];
     }
 }
