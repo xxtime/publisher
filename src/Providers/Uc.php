@@ -149,12 +149,12 @@ class Uc extends ProviderAbstract
         $data['ACCOUNT_ID'] = $parameter['raw']['data']['accountId'];
         ksort($data);
         foreach ($data as $key => $value) {
-            if (!empty($value)) {
+            if (empty($value)) {
                 unset($data[$key]);
             }
         }
         $sign_data = '';
-        foreach ($parameter as $k => $v) {
+        foreach ($data as $k => $v) {
             $sign_data .= $k . '=' . $v;
         }
         $data['SIGN_TYPE'] = 'MD5';
