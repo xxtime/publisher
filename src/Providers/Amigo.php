@@ -159,14 +159,14 @@ class Amigo extends ProviderAbstract
     {
         $time = time();
 
-        $url = 'https://pay.gionee.com/order/create';
+        $url = 'https://pay.gionee.com/amigo/create/order';
 
         $params = array(
             'user_id'     => $parameter['raw']['uid'],                               // 必填.用户唯一标识(不参与签名), 该值来至于token验证后金立返回的值
             'api_key'       => $this->app_key,                     // 必填.商户申请的 APIKey
             'deal_price'    => $parameter['amount'],                                 // 必填.商品总金额
             'deliver_type'  => '1',                                             // 必填.付款方式: 1.立即付款 2.货到付款 (目前只支持1,文档20160317)
-            'expire_time'   => date( 'YmdHis', $time + ( 30 * 60 ) ),          // 可选.订单的过期时间, 值不为空则必须参加签名
+            'expire_time'   => date( 'YmdHis', $time + ( 60 * 60 )*30 ),          // 可选.订单的过期时间, 值不为空则必须参加签名
             //'notify_url'    => '',                                            // 可选.
             'out_order_no'  => $parameter['transaction'],                               // 必填.订单ID
             'subject'       => $parameter['product_name'],                                   // 必填.商品名称
@@ -195,9 +195,9 @@ class Amigo extends ProviderAbstract
      */
     private function rsa_sign( $str )
     {
-        $private_key = "-----BEGIN PUBLIC KEY-----\n" .
+        $private_key = "-----BEGIN PRIVATE KEY-----\n" .
             chunk_split($this->option['private_key'], 64, "\n") .
-            '-----END PUBLIC KEY-----';
+            '-----END PRIVATE KEY-----';
         $private_key_id = openssl_pkey_get_private( $private_key );
         $signature = false;
         openssl_sign( $str, $signature, $private_key_id );
