@@ -112,7 +112,6 @@ class Huawei extends ProviderAbstract
      */
     public function tradeBuild($parameter = [])
     {
-        $data['userName'] = $parameter['raw']['uid'];
         $data['userID'] = $parameter['raw']['uid'];
         $data['applicationID'] = $this->app_id;
         $data['amount'] = $parameter['amount'];
@@ -129,6 +128,7 @@ class Huawei extends ProviderAbstract
 
         // 生成签名
         $sign = $this->rsa_sign($str);
+        $data['userName'] = $parameter['raw']['uid'];
         $data['sign'] = $sign;
 
         return [
