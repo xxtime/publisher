@@ -130,6 +130,7 @@ class Huawei extends ProviderAbstract
         $sign = $this->rsa_sign($str);
         $data['userName'] = $parameter['raw']['uid'];
         $data['sign'] = $sign;
+        $data['serviceCatalog'] = 'X6';
 
         return [
             'reference' => '',      // 发行商订单号
