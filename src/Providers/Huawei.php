@@ -112,7 +112,7 @@ class Huawei extends ProviderAbstract
      */
     public function tradeBuild($parameter = [])
     {
-        $data['userID'] = $parameter['raw']['uid'];
+        $data['userID'] = $this->option['cp_id'];
         $data['applicationID'] = $this->app_id;
         $data['amount'] = $parameter['amount'];
         $data['productName'] = $parameter['product_name'];
