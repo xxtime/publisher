@@ -139,9 +139,9 @@ class Huawei extends ProviderAbstract
 
     private function rsa_sign($str)
     {
-        $private_key = "-----BEGIN PUBLIC KEY-----\n" .
+        $private_key = "-----BEGIN PRIVATE KEY-----\n" .
             chunk_split($this->option['private_key'], 64, "\n") .
-            '-----END PUBLIC KEY-----';
+            '-----END PRIVATE KEY-----';
         $private_key_id = openssl_pkey_get_private($private_key);
         $signature = false;
         openssl_sign($str, $signature, $private_key_id);
