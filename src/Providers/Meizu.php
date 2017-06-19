@@ -170,12 +170,14 @@ class Meizu extends ProviderAbstract
             'product_unit'      => '',
             'total_price'       => (string)$parameter['amount'],
             'uid'               => $parameter['raw']['uid'],
-            'user_info'         => $parameter['raw'],
+            'user_info'         => '',
         );
 
         $str = '';
+
         foreach ($data as $k => $v) {
             $str .= "$k=$v&";
+
         }
         $str = trim($str, '&');
         $str = $str . ':' . $this->option['secret_key'];
