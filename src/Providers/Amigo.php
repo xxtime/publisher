@@ -162,7 +162,7 @@ class Amigo extends ProviderAbstract
         $url = 'https://pay.gionee.com/amigo/create/order';
 
         $params = array(
-            'user_id'     => $parameter['raw']['uid'],                               // 必填.用户唯一标识(不参与签名), 该值来至于token验证后金立返回的值
+            'user_id'     => $parameter['raw']['ply'][0]['pid'],                               // 必填.用户唯一标识(不参与签名), 该值来至于token验证后金立返回的值
             'api_key'       => $this->app_key,                     // 必填.商户申请的 APIKey
             'deal_price'    => $parameter['amount'],                                 // 必填.商品总金额
             'deliver_type'  => '1',                                             // 必填.付款方式: 1.立即付款 2.货到付款 (目前只支持1,文档20160317)
