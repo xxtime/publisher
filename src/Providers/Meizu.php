@@ -119,7 +119,7 @@ class Meizu extends ProviderAbstract
             'total_price'       => $req['total_price'],
             'trade_status'      => $req['trade_status'],
             'uid'               => $req['uid'],
-            'user_info'         => $req['user_info']
+            'user_info'         => ''
         );
 
         $str = '';
@@ -166,19 +166,20 @@ class Meizu extends ProviderAbstract
             'product_body'      => $parameter['product_name'],
             'product_id'        => $parameter['product_id'],
             'product_per_price' => (string)$parameter['amount'],
-            'product_subject'   => '购买' . (int)$parameter['amount'] . '枚金币',
-            'product_unit'      => '',
+            'product_subject'   => '购买' . (int)$parameter['amount'] . '个'.$parameter['product_name'],
+            'product_unit'      => '个',
             'total_price'       => (string)$parameter['amount'],
             'uid'               => $parameter['raw']['uid'],
-            'user_info'         => $parameter['raw']['uid'],
+            'user_info'         => '',
         );
-        
+
+
         $str = '';
         foreach ($data as $k => $v) {
             $str .= "$k=$v&";
         }
         $str = trim($str, '&');
-        $str = $str . ':' . $this->option['secret_key'];
+        $str .= ':' . $this->option['secret_key'];
         $data['sign_type'] = 'md5';
         $data['sign'] = md5($str . ':' . $this->option['secret_key']);
 
