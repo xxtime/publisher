@@ -60,7 +60,7 @@ class Huawei extends ProviderAbstract
         $param['transaction'] = $data['requestId'];                             // 订单id
         // 支付方式
         $param['currency'] = 'CNY';                                             // 货币类型
-        $param['reference'] = $data['order_id'];                                // 第三方订单ID
+        $param['reference'] = $data['orderId'];                                // 第三方订单ID
         $param['userId'] = '';                                                  // 签名
 
         // 检查签名
@@ -74,7 +74,7 @@ class Huawei extends ProviderAbstract
     public function check_sign($sign = '', $reqs)
     {
         $data = $reqs;
-        unset($data['_url'], $data['plat'], $data['sign'], $data['signType'], $data['zone'], $data['gameid']);
+        unset($data['sign']);
         ksort($data);
 
         $public_key = "-----BEGIN PUBLIC KEY-----\n" .
@@ -84,6 +84,7 @@ class Huawei extends ProviderAbstract
         $pubKeyId = openssl_pkey_get_public($public_key);
 
         $httpStr = is_array($data) ? http_build_query($data) : $data;
+        $sign = str_replace(' ', '+', $sign);
         $signature = base64_decode($sign);
 
         if (!openssl_verify($httpStr, $signature, $pubKeyId)) {
