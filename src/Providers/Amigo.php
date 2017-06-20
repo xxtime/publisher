@@ -182,7 +182,6 @@ class Amigo extends ProviderAbstract
 
         $verified = $this -> http_curl_post( $url, json_encode( $params ) );
 
-        dump($params);
         return [
             'reference' => '',      // 发行商订单号
             'raw'       => $verified       // 发行渠道返回的原始信息, 也可添加额外参数
