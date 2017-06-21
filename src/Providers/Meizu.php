@@ -165,10 +165,10 @@ class Meizu extends ProviderAbstract
             'pay_type'          => 0,
             'product_body'      => $parameter['product_name'],
             'product_id'        => $parameter['product_id'],
-            'product_per_price' => (int)$parameter['amount'],
+            'product_per_price' => (int)$parameter['amount']/100,
             'product_subject'   => '购买'.$parameter['product_name'],
             'product_unit'      => '',
-            'total_price'       => (int)$parameter['amount'],
+            'total_price'       => (int)$parameter['amount']/100,
             'uid'               => $parameter['raw']['uid'],
             'user_info'         => '',
         );
