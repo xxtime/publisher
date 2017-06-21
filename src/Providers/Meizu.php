@@ -166,8 +166,8 @@ class Meizu extends ProviderAbstract
             'product_body'      => $parameter['product_name'],
             'product_id'        => $parameter['product_id'],
             'product_per_price' => (string)$parameter['amount'],
-            'product_subject'   => '购买' . (int)$parameter['amount'] . '个'.$parameter['product_name'],
-            'product_unit'      => '个',
+            'product_subject'   => '购买'.$parameter['product_name'],
+            'product_unit'      => '',
             'total_price'       => (string)$parameter['amount'],
             'uid'               => $parameter['raw']['uid'],
             'user_info'         => '',
@@ -179,7 +179,6 @@ class Meizu extends ProviderAbstract
             $str .= "$k=$v&";
         }
         $str = trim($str, '&');
-        $str .= ':' . $this->option['secret_key'];
         $data['sign_type'] = 'md5';
         $data['sign'] = md5($str . ':' . $this->option['secret_key']);
 
