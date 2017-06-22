@@ -89,8 +89,8 @@ class Meizu extends ProviderAbstract
         $param['amount'] = $_REQUEST['total_price'];                    // 总价
         $param['transaction'] = $_REQUEST['cp_order_id'];               // 订单id
         $param['currency'] = 'CNY';                                     // 货币类型
-        $param['reference'] = '';                    // 第三方订单ID
-        $param['userId'] = '';                            // 第三方账号ID
+        $param['reference'] = $_REQUEST['order_id'];                    // 第三方订单ID
+        $param['userId'] = $_REQUEST['uid'];                            // 第三方账号ID
 
         // 检查签名
         $this->check_sign($_REQUEST['sign']);
