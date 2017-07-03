@@ -94,9 +94,9 @@ class Lenovo extends ProviderAbstract
     {
         $req = $_REQUEST['transdata'];
 
-        $private_key = "-----BEGIN PUBLIC KEY-----\n" .
+        $private_key = "-----BEGIN PRIVATE KEY-----\n" .
             chunk_split($this->option['private_key'], 64, "\n") .
-            '-----END PUBLIC KEY-----';
+            '-----END PRIVATE KEY-----';
 
         $res = openssl_get_privatekey($private_key);
         openssl_sign($req, $sign, $res);
