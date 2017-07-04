@@ -109,6 +109,7 @@ class Amigo extends ProviderAbstract
             $str .= "$k=$v&";
         }
         $str = trim($str, '&');
+        $sign = str_replace(' ', '+', $sign);
         // 验签
         if (!$this->rsa_verify($str, $sign)) {
             throw new DefaultException('sign error');
