@@ -32,7 +32,7 @@ class Mi extends ProviderAbstract
         $params = array_filter($params);                                                                              // 去除空数据
         ksort($params);                                                                                               // 按照字段排序
         $text = http_build_query($params);
-        $signature = hash_hmac("sha1", $text, $this->option['secret_key'],
+        $signature = hash_hmac("sha1", $text, $this->option['SecretKey'],
             false);                                                        // 转换成 URL 格式
         $params['signature'] = urlencode($signature);
 
