@@ -33,7 +33,10 @@ class Coolpad extends ProviderAbstract{
 
         //获取access token 用access token 再去请求sdk服务端 换取用户详细信息
         $response = file_get_contents($accessUrl.$query);
-
+        //$response = "{\"access_token\":\"4.8f28f6388a467dc424e370e2e3f35961.8a2a954530c5cfb8c299fc866cc129e6.1500887596854\",\"refresh_token\":\"4.24215a1aafb504083e53e604d4cddddc\",\"openid\":\"87136948\",\"expires_in\":\"7776000\"}";
+        //把json数据转成数组
+        $response = json_decode($response, true);
+        
         //如果没有返回openid 说明验证没过
         if (empty($response['access_token']) && empty($response['openid'])){
             throw new DefaultException($response);
@@ -50,9 +53,12 @@ class Coolpad extends ProviderAbstract{
 
         $playerResponse = file_get_contents($playUrl . http_build_query($playParam));
 
+        $playerResponse = json_decode($playerResponse, true);
+
         if ($playerResponse['rtn_code'] != 0){
             throw new DefaultException($playerResponse);
         }
+
 
         return [
             'uid'   => $response['openid'],
