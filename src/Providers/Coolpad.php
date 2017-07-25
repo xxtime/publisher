@@ -59,6 +59,9 @@ class Coolpad extends ProviderAbstract{
             throw new DefaultException($playerResponse);
         }
 
+        $playerResponse['access_token'] = $response['access_token'];
+
+        $playerResponse['open_id'] = $response['openid'];
 
         return [
             'uid'   => $response['openid'],
