@@ -82,12 +82,15 @@ class Huawei extends ProviderAbstract
             '-----END PUBLIC KEY-----';
 
         $pubKeyId = openssl_pkey_get_public($public_key);
-
-        $httpStr = is_array($data) ? http_build_query($data) : $data;
+        $httpStr = '';
+        foreach ($data as $key => $value){
+            $httpStr .= $key . '=' . $value . '&';
+        }
+        $httpStr = rtrim($httpStr, '&');
         $sign = str_replace(' ', '+', $sign);
         $signature = base64_decode($sign);
 
-        if (!openssl_verify($httpStr, $signature, $pubKeyId)) {
+        if (!openssl_verify($httpStr, $signature, $pubKeyId, OPENSSL_ALGO_SHA1)) {
             throw new DefaultException('sign error');
         }
     }
