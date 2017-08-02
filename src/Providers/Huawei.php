@@ -116,7 +116,7 @@ class Huawei extends ProviderAbstract
      */
     public function tradeBuild($parameter = [])
     {
-        $data['userID'] = $parameter['raw']['uid'];;
+        $data['userID'] = $this->option['cp_id'];
         $data['applicationID'] = $this->app_id;
         $data['amount'] = $parameter['amount'];
         $data['productName'] = $parameter['product_name'];
@@ -132,7 +132,8 @@ class Huawei extends ProviderAbstract
 
         // 生成签名
         $sign = $this->rsa_sign($str);
-        $data['userName'] = $parameter['raw']['uid'];
+
+        $data['userName'] = $this->option['cp_id'];
         $data['sign'] = $sign;
         $data['serviceCatalog'] = 'X6';
 
@@ -149,7 +150,7 @@ class Huawei extends ProviderAbstract
             '-----END PRIVATE KEY-----';
         $private_key_id = openssl_pkey_get_private($private_key);
         $signature = false;
-        openssl_sign($str, $signature, $private_key_id);
+        openssl_sign($str, $signature, $private_key_id,OPENSSL_ALGO_SHA1);
         $sign = base64_encode($signature);
         return $sign;
     }
