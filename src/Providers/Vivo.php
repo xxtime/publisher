@@ -70,7 +70,7 @@ class Vivo extends ProviderAbstract
         return [
             'transaction' => $param['cpOrderNumber'],
             'reference'   => $param['orderNumber'],
-            'amount'      => range($param['orderAmount'] / 100, 2),
+            'amount'      => round($param['orderAmount'] / 100, 2),
             'currency'    => '',
             'userId'      => $param['uid']
         ];
