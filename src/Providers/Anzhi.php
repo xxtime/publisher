@@ -39,7 +39,26 @@ class Anzhi extends ProviderAbstract{
     }
 
     public function notify(){
+        $data = $_REQUEST['data'];
+        if (empty($data)) {
+            throw new DefaultException('error order');
+        }
 
+        $result = $this->decrypt($data);
+
+        // 平台参数
+        $param['amount'] = $result['payAmount'];                              // 总价.单位: 分
+        $param['transaction'] = $result['cpInfo'];                              // 订单id
+        $param['currency'] = 'CNY';                                                         // 货币类型
+        $param['reference'] = $result['orderId'];                           // 第三方订单ID
+        $param['userId'] = $result['uid'];                                   // 第三方账号ID
+
+        return $param;
+    }
+
+    public function success()
+    {
+        exit('success');
     }
 
     private function http_curl_post($url, $data, $Authorization = '', $timeout = 10)

@@ -72,18 +72,89 @@ class Coolpad extends ProviderAbstract{
     }
 
     public function notify(){
-        //private_key mod_key 在 payment_key 中 需要解密 提取 payment_key 是base64加密
-        $pay_key = base64_decode($this->payment_key);
-        $keys = explode('+', $pay_key);
-        //获得私钥
-        $private = $keys[0];
-        $mod_key = $keys[1];
-        //组装私钥格式
-        $private_key = "-----BEGIN PRIVATE KEY-----\n" .
-            chunk_split($private, 64, "\n") .
-            '-----END PRIVATE KEY-----';
+        $transdata = json_decode($_REQUEST['transdata'], true);
+        if (empty($transdata)) {
+            throw new DefaultException('error order');
+        }
 
-        $transdata = $_REQUEST['transdata'];
+        // 平台参数
+        $param['amount'] = $transdata['money'];                              // 总价.单位: 分
+        $param['transaction'] = $transdata['exorderno'];                              // 订单id
+        $param['currency'] = 'CNY';                                                         // 货币类型
+        $param['reference'] = $transdata['transid'];                           // 第三方订单ID
+        $param['userId'] = '';                                                  // 第三方账号ID
+
+        $key1 =  base64_decode($this->payment_key);
+        $key2 = substr($key1,40,strlen($key1)-40);
+        $key3 = base64_decode($key2);
+
+        //获得私钥
+        list ( $private_key, $mod_key ) = explode ( "+", $key3 );
+
+        $sign_md5 = $this->decrypt($_REQUEST['sign'], $private_key, $mod_key);
+        $msg_md5 = md5($_REQUEST['transdata']);
+
+        if(strcmp($msg_md5,$sign_md5) !== 0){
+            throw new DefaultException('sign error');
+        }
+
+        return $param;
+    }
+
+
+    public function success()
+    {
+        exit('success');
+    }
+
+    /**
+     * 解密方法
+     * @param $string 需要解密的密文字符
+     * @param $d
+     * @param $n
+     * @return String
+     */
+    private function decrypt($string, $d, $n){
+        $keylen = 64;
+        //解决某些机器验签时好时坏的bug
+        //BCMath 里面的函数 有的机器php.ini设置不起作用
+        //要在RSAUtil的方法decrypt 加bcscale(0);这样一行代码才行
+        //要不有的机器计算的时候会有小数点 就会失败
+        bcscale(0);
+
+        $bln = $keylen * 2 - 1;
+        $bitlen = ceil($bln / 8);
+        $arr = explode(' ', $string);
+        $data = '';
+        foreach($arr as $v){
+            $v = $this->hex2dec($v);
+            $v = bcpowmod($v, $d, $n);
+            $data .= $this->int2byte($v);
+        }
+        return trim($data);
+    }
+
+    private function hex2dec($num){
+        $char = '0123456789abcdef';
+        $num = strtolower($num);
+        $len = strlen($num);
+        $sum = '0';
+        for($i = $len - 1, $k = 0; $i >= 0; $i--, $k++){
+            $index = strpos($char, $num[$i]);
+            $sum = bcadd($sum, bcmul($index, bcpow('16', $k)));
+        }
+        return $sum;
+    }
+
+    private function int2byte($num){
+        $arr = array();
+        $bit = '';
+        while(bccomp($num, '0') > 0){
+            $asc = bcmod($num, '256');
+            $bit = chr($asc) . $bit;
+            $num = bcdiv($num, '256');
+        }
+        return $bit;
     }
 
     private function http_curl_post($url, $data, $Authorization = '', $timeout = 10)
