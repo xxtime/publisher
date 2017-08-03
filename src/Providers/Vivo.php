@@ -133,16 +133,19 @@ class Vivo extends ProviderAbstract
 
     private function check_sign($data, $sign)
     {
-        $app_key = $this->app_key;
-        $app_key = md5($app_key);
-
-        $sign_str = md5(http_build_query($data));
-
-        $sign_new = $sign_str . '&' . $app_key;
-
-        if (strtolower($sign) != strtolower($sign_new)) {
-            throw new DefaultException('sign error');
+        $signStr = '';
+        foreach($data as $k => $v){
+            $signStr .=  $k . '=' . $v . '&';
         }
+
+        $signStr = trim($signStr, '&');
+
+        $signature = strtolower(md5($signStr . '&' . strtolower(md5($this->option['app_key']))));
+
+        if (strtolower($sign) != strtolower($signature)){
+            throw  new DefaultException('sign error');
+        }
+
     }
 
 
