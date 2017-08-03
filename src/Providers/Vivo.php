@@ -87,9 +87,9 @@ class Vivo extends ProviderAbstract
     {
         $url = 'https://pay.vivo.com.cn/vcoin/trade';
         $query = [
+            'appId'         => $this->option['app_id'],
             'version'       => '1.0.0',
             'cpId'          => $this->option['cp_id'],
-            'appId'         => $this->option['app_id'],
             'cpOrderNumber' => $parameter['transaction'],
             'notifyUrl'     => $this->option['notify_url'],
             'orderTime'     => (new \DateTime('now', new \DateTimeZone('Asia/Shanghai')))->format('YmdHis'),
@@ -98,25 +98,30 @@ class Vivo extends ProviderAbstract
             'orderDesc'     => $parameter['product_name'],
             'extInfo'       => $parameter['transaction']
         ];
+
         ksort($query);
-        $query['signature'] = md5(http_build_query($query) . '&' . md5($this->option['app_key'])); // TODO :: cp_key
+
+        $queryStr = '';
+        foreach($query as $k => $v){
+            $queryStr .= $k . '=' . $v . '&';
+        }
+
+        $queryStr = trim($queryStr , '&');
+
+        $query['signature'] = strtolower(md5($queryStr . '&' . strtolower(md5($this->option['app_key'])))); // TODO :: cp_key
         $query['signMethod'] = 'MD5';
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
-        $response = curl_exec($ch);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($query));
+        curl_setopt($ch, CURLOPT_NOBODY, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $curl_result = curl_exec($ch);
         curl_close($ch);
-        $result = json_decode($response, true);
-
+        $result = json_decode($curl_result, true);
         if ($result['respCode'] != 200) {
-            throw new DefaultException($response);
+            throw new DefaultException($result);
         }
 
         return [
