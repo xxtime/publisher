@@ -46,7 +46,7 @@ class Feiliu extends ProviderAbstract
 
         // 平台参数
         $param['amount'] = $data['amount'];                     // 总价.单位: 分
-        $param['transaction'] = $data['flOrderId'];             // 订单id
+        $param['transaction'] = $data['cpOrderId'];             // 订单id
         $param['currency'] = 'CNY';                             // 货币类型
 
         // 第三方参数【可选,暂未使用】
