@@ -147,16 +147,17 @@ class Uc extends ProviderAbstract
         $data['NOTIFY_URL'] = $this->option['notify_url'];
         $data['CP_ORDER_ID'] = $parameter['transaction'];
         $data['ACCOUNT_ID'] = $parameter['raw']['data']['accountId'];
-        ksort($data);
         foreach ($data as $key => $value) {
             if (empty($value)) {
                 unset($data[$key]);
             }
         }
+        ksort($data);
         $sign_data = '';
         foreach ($data as $k => $v) {
-            $sign_data .= $k . '=' . $v;
+            $sign_data .= $k . '=' . $v . '&';
         }
+        $sign_data = trim($sign_data, '&');
         $data['SIGN_TYPE'] = 'MD5';
         $data['SIGN'] = md5($sign_data . $this->app_key);
         return [
