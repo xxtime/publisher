@@ -22,9 +22,10 @@ class Yqq extends ProviderAbstract{
         $query = [
             'timestamp' => $timeStamp,
             'appid' => $this->option['app_id'],
-            'sign'  => $sign,
+            'sig'  => $sign,
             'openid' => $option['custom'],
-            'openkey' => $token
+            'openkey' => $token,
+            'userip' => $option['ip'],
         ];
 
         $response = file_get_contents($url. http_build_query($query));
