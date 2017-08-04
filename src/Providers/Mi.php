@@ -80,7 +80,7 @@ class Mi extends ProviderAbstract
         return [
             'transaction' => $_REQUEST['cpOrderId'],
             'reference'   => $_REQUEST['orderId'],
-            'amount'      => '',
+            'amount'      => rand($_REQUEST['payFee'] / 100, 2),
             'currency'    => '',
             'userId'      => $_REQUEST['uid']
         ];
