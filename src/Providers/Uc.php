@@ -155,9 +155,8 @@ class Uc extends ProviderAbstract
         ksort($data);
         $sign_data = '';
         foreach ($data as $k => $v) {
-            $sign_data .= $k . '=' . $v . '&';
+            $sign_data .= $k . '=' . $v;
         }
-        $sign_data = trim($sign_data, '&');
         $data['SIGN_TYPE'] = 'MD5';
         $data['SIGN'] = md5($sign_data . $this->app_key);
         return [
