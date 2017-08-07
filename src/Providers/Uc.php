@@ -103,12 +103,14 @@ class Uc extends ProviderAbstract
 
         $param['failedDesc'] = $responseData['data']['failedDesc'];
 
+        $param['cpOrderId'] = $responseData['data']['cpOrderId'];
+
         $sign = $responseData['sign'];
 
         $this->check_sign($param, $sign, $this->app_key);
 
         return [
-            'transaction' => $param['orderId'],
+            'transaction' => $param['cpOrderId'],
             'reference'   => $param['orderId'],
             'amount'      => $param['amount'],
             'currency'    => '',
@@ -152,6 +154,7 @@ class Uc extends ProviderAbstract
     public function tradeBuild($parameter = [])
     {
         $data['amount'] = $parameter['amount'];
+        $data['orderId'] = $parameter['transaction'];
         $data['accountId'] = $parameter['raw']['data']['accountId'];
         foreach ($data as $key => $value) {
             if (empty($value)) {
