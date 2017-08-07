@@ -25,7 +25,6 @@ class Yqq extends ProviderAbstract{
             'sig'  => $sign,
             'openid' => $option['custom'],
             'openkey' => $token,
-            'userip' => $option['ip'],
         ];
 
         $response = file_get_contents($url. http_build_query($query));
