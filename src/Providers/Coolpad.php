@@ -78,13 +78,13 @@ class Coolpad extends ProviderAbstract{
         }
 
         // 平台参数
-        $param['amount'] = $transdata['money'];                              // 总价.单位: 分
+        $param['amount'] = round($transdata['money'] / 100, 2);                              // 总价.单位: 分
         $param['transaction'] = $transdata['exorderno'];                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
         $param['reference'] = $transdata['transid'];                           // 第三方订单ID
         $param['userId'] = '';                                                  // 第三方账号ID
 
-        $key1 =  base64_decode($this->payment_key);
+        $key1 =  base64_decode($this->option['payment_key']);
         $key2 = substr($key1,40,strlen($key1)-40);
         $key3 = base64_decode($key2);
 
@@ -94,7 +94,7 @@ class Coolpad extends ProviderAbstract{
         $sign_md5 = $this->decrypt($_REQUEST['sign'], $private_key, $mod_key);
         $msg_md5 = md5($_REQUEST['transdata']);
 
-        if(strcmp($msg_md5,$sign_md5) !== 0){
+        if(strcmp($msg_md5,$sign_md5) != 0){
             throw new DefaultException('sign error');
         }
 
