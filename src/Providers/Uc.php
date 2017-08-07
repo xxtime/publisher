@@ -154,7 +154,7 @@ class Uc extends ProviderAbstract
     public function tradeBuild($parameter = [])
     {
         $data['amount'] = $parameter['amount'];
-        $data['orderId'] = $parameter['transaction'];
+        $data['cpOrderId'] = $parameter['transaction'];
         $data['accountId'] = $parameter['raw']['data']['accountId'];
         foreach ($data as $key => $value) {
             if (empty($value)) {
@@ -166,7 +166,7 @@ class Uc extends ProviderAbstract
         foreach ($data as $k => $v) {
             $sign_data .= $k . '=' . $v;
         }
-        $data['sign_type'] = 'MD5';
+        $data['signType'] = 'MD5';
         $data['sign'] = md5($sign_data . $this->app_key);
         return [
             'reference' => '',      // 发行商订单号
