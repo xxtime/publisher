@@ -143,10 +143,8 @@ class Uc extends ProviderAbstract
      */
     public function tradeBuild($parameter = [])
     {
-        $data['AMOUNT'] = $parameter['amount'];
-        $data['NOTIFY_URL'] = $this->option['notify_url'];
-        $data['CP_ORDER_ID'] = $parameter['transaction'];
-        $data['ACCOUNT_ID'] = $parameter['raw']['data']['accountId'];
+        $data['amount'] = $parameter['amount'];
+        $data['accountId'] = $parameter['raw']['data']['accountId'];
         foreach ($data as $key => $value) {
             if (empty($value)) {
                 unset($data[$key]);
@@ -157,8 +155,8 @@ class Uc extends ProviderAbstract
         foreach ($data as $k => $v) {
             $sign_data .= $k . '=' . $v;
         }
-        $data['SIGN_TYPE'] = 'MD5';
-        $data['SIGN'] = md5($sign_data . $this->app_key);
+        $data['sign_type'] = 'MD5';
+        $data['sign'] = md5($sign_data . $this->app_key);
         return [
             'reference' => '',      // 发行商订单号
             'raw'       => $data   // 发行渠道返回的原始信息, 也可添加额外参数
