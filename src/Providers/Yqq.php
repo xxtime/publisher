@@ -33,8 +33,10 @@ class Yqq extends ProviderAbstract{
         if ($result['ret'] != 0){
             throw new DefaultException(json_encode($result));
         }
-        
+
         return [
+            'uid' => $query['openid'],
+            'username' => '',
             'original' => (array)$result
         ];
     }
