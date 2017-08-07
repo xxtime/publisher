@@ -84,8 +84,8 @@ class  Baidu extends ProviderAbstract
         $currency = '';
 
         return [
-            'transaction' => $transactionId,
-            'reference'   => $transactionReference,
+            'transaction' => $transactionReference,
+            'reference'   => $transactionId,
             'amount'      => $amount,
             'currency'    => $currency,
             'userId'      => $userId
