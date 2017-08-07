@@ -13,25 +13,40 @@ class Anzhi extends ProviderAbstract{
 
     //安智的服务端验证url 需要从客户端发来的请求中获取
     public function verifyToken($token = '', $option = []){
-        $url = $option['custom'];
-
+        $url = $_REQUEST['custom'];
         $param = [
-            'time' => time(),
+            'time' => substr($this->udate('YmdHisu'), 0, 17),
             'appkey' => $this->app_key,
             'cptoken' => $token,
-            'sign'  => md5($this->app_key . $token . $this->option['sercret_key']),
-            'deviceId' => $option['custom']
+            'sign'  => md5($this->app_key . $token . $this->option['secret_key']),
+            'deviceId' => $_REQUEST['deviceId']
         ];
 
-        $response = $this->http_curl_post($url, http_build_query($param), '', 10);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $param);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 4);
+        curl_setopt($ch, CURLOPT_ENCODING, ""); //必须解压缩防止乱码
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $response = json_decode($response, true);
 
         //如果response 不等于一 抛出异常
-        if ($response !== 1){
+        if ($response['code'] !== 1){
             throw new DefaultException($response);
         }
 
         //对response 进行解密
-        $response = base64_decode($response);
+        $response = json_decode(base64_decode($response['data']), true);
+
+
         //对response 的 uid 进行3DES 解密
         $uid = $this->decrypt($response['uid']);
 
@@ -61,29 +76,15 @@ class Anzhi extends ProviderAbstract{
         exit('success');
     }
 
-    private function http_curl_post($url, $data, $Authorization = '', $timeout = 10)
-    {
 
-        $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_HEADER, 0);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
-        if (!empty($Authorization)) {
-            curl_setopt($curl, CURLOPT_HTTPHEADER, array('Authorization: ' . $Authorization));
-        }
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        $content = curl_exec($curl);
-        curl_close($curl);
-
-        return $content;
-    }
-
-    private function decrypt($value){
+    /**
+     * 解密
+     */
+    public  function decrypt($value) {
         $td = mcrypt_module_open ( MCRYPT_3DES, '', MCRYPT_MODE_ECB, '' );
-        mcrypt_generic_init ( $td, $this->option['sercret_key']);
+        //$iv = pack ( 'H16', $this->iv );
+        //$key = pack ( 'H48', $this->key );
+        mcrypt_generic_init ( $td, $this->option['secret_key'],'00000000');
         $ret = trim ( mdecrypt_generic ( $td, base64_decode ( $value ) ) );
         $ret = $this->UnPaddingPKCS7 ( $ret );
         mcrypt_generic_deinit ( $td );
@@ -103,5 +104,15 @@ class Anzhi extends ProviderAbstract{
         }
 
         return substr ( $data, 0, -1*($padlen-strlen ( $data ) ) );
+    }
+
+    private function  udate($format = 'u', $utimestamp = null) {
+        if (is_null($utimestamp))
+            $utimestamp = microtime(true);
+
+        $timestamp = floor($utimestamp);
+        $milliseconds = round(($utimestamp - $timestamp) * 1000000);
+
+        return date(preg_replace('`(?<!\\\\)u`', $milliseconds, $format), $timestamp);
     }
 }
