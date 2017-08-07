@@ -86,21 +86,29 @@ class Uc extends ProviderAbstract
         }
 
         $param['orderId'] = $responseData['data']['orderId'];
+
         $param['gameId'] = $responseData['data']['gameId'];
+
         $param['accountId'] = $responseData['data']['accountId'];
+
         $param['creator'] = $responseData['data']['creator'];
+
         $param['payWay'] = $responseData['data']['payWay'];
+
         $param['amount'] = $responseData['data']['amount'];
+
         $param['callbackInfo'] = $responseData['data']['callbackInfo'];
+
         $param['orderStatus'] = $responseData['data']['orderStatus'];
+
         $param['failedDesc'] = $responseData['data']['failedDesc'];
-        $param['cpOrderId'] = $responseData['data']['cpOrderId'];
+
         $sign = $responseData['sign'];
 
         $this->check_sign($param, $sign, $this->app_key);
 
         return [
-            'transaction' => $param['cpOrderId'],
+            'transaction' => $param['orderId'],
             'reference'   => $param['orderId'],
             'amount'      => $param['amount'],
             'currency'    => '',
@@ -111,12 +119,12 @@ class Uc extends ProviderAbstract
 
     private function check_sign($data, $sign, $appKey)
     {
-        $data_ksort = ksort($data);
+        ksort($data);
         $sign_str = '';
-        foreach ($data_ksort as $k => $v) {
+        foreach ($data as $k => $v) {
             $sign_str .= $k . '=' . $v;
         }
-        $sign_str .= 'apiKey' . '=' . $appKey;
+        $sign_str .=  $appKey;
 
         if ($sign != md5($sign_str)) {
             throw new DefaultException('sign error');
