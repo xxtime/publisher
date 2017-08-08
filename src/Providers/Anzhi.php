@@ -62,6 +62,11 @@ class Anzhi extends ProviderAbstract{
         $data = str_replace(' ', '+', $data);
         $result = $this->decrypt($data);
         $result = json_decode($result ,true);
+
+        if(empty($result)){
+            throw new DefaultException('sign error');
+        }
+
         // 平台参数
         $param['amount'] = round($result['payAmount'] / 100, 2);                              // 总价.单位: 分
         $param['transaction'] = $result['cpInfo'];                              // 订单id
