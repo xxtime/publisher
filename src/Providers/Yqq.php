@@ -45,43 +45,50 @@ class Yqq extends ProviderAbstract
 
     public function notify()
     {
+        $url = 'https://ysdktest.qq.com';
+        $uri = '/mpay/get_balance_m';
         $req = $_REQUEST;
         $data = array(
             'openid'               => $req['openid'],
-            'appid'                => $req['appid'],
-            'ts'                   => $req['ts'],
-            'payitem'              => $req['payitem'],
-            'token'                => $req['token'],
-            'billno'               => $req['billno'],
-            'version'              => $req['version'],
-            'zoneid'               => $req['zoneid'],
-            'providetype'          => $req['providetype'],
-            'amt'                  => $req['amt'],
-            'payamt_coins'         => $req['payamt_coins'],
-            'pubacct_payamt_coins' => $req['pubacct_payamt_coins'],
-
+            'openkey'                => $req['openkey'],
+            'pf'                   => $req['pf'],
+            'pfkey'              => $req['pfkey'],
+            'zoneid'                => $req['custom'],
+            'appid'                => $this->app_id,
+            'ts'                => time(),
+            'userip'                => 'common',
+            'format'                => 'json',
         );
 
-        $sig = $req['sig'];
-
-        $data['billno'] = str_replace('-', '%2D', $data['billno']);
         ksort($data);
 
         $str1 = '';
         foreach ($data as $k => $v) {
             $str1 .= "$k=$v&";
         }
-        $str1 = urlencode(trim($str1, '&'));
+        $str2 = urlencode(trim($str1, '&'));
 
-        $url = urlencode('/publisher/notify/yqq');
-        $str2 = 'GET' . $url . $str1;
+        $str3 = 'GET' . urlencode($uri) . $str2;
         $appkey = $this->app_key . '&';
-        $mysig = hash_hmac('sha1', $str2, $appkey);
-        $mysig = base64_encode($mysig);
+        $sig = hash_hmac('sha1', $str3, $appkey);
+        $sig = base64_encode($sig);
 
-        if ($sig != $mysig) {
-            throw new DefaultException('sign error');
-        }
+        $url .= $uri . '?' . $str1 .'&sig='. urlencode($sig);
+        $cookie = 'session_id ="'.urlencode('openid').'";session_type = "'.urlencode('kp_actoken').'";org_loc="'.urlencode('/mpay/get_balance_m').'"';
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_HEADER, 1);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_COOKIE, $cookie);
+        $data = curl_exec($curl);
+        curl_close($curl);
+
+        dd($data);
+
+//        if ($sig != $mysig) {
+//            throw new DefaultException('sign error');
+//        }
 
         // 平台参数
         $param['amount'] = round($req['amt'] / 10, 2);                              // 总价.单位: 分
