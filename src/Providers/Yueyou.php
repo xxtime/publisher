@@ -74,10 +74,10 @@ class yueyou extends ProviderAbstract
         }
 
         // 平台参数
-        $param['amount'] = round($data['amount'] / 100, 2);                              // 总价.单位: 分
-        $param['transaction'] = $data['cpOrderId'];                              // 订单id
+        $param['amount'] = round($req['amount'] / 100, 2);                              // 总价.单位: 分
+        $param['transaction'] = $req['cpOrderId'];                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
-        $param['reference'] = $data['orderId'];                           // 第三方订单ID
+        $param['reference'] = $req['orderId'];                           // 第三方订单ID
         $param['userId'] = '';                                   // 第三方账号ID
 
         return $param;
