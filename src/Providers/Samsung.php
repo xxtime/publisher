@@ -21,9 +21,49 @@ class Sumsung extends ProviderAbstract
         ];
     }
 
+    //渠道 回调
     public function notify()
     {
+        $request = file_get_contents("php://input");
 
+        $request = urldecode($request);
+
+        $data_info = explode($request, '&');
+
+        $transData = $data_info['0'];
+        $trans = explode($transData, '=');
+        //获取订单信息字符串
+        $tran = $trans['1'];
+        //把订单信息转化成数组
+        $tran = json_decode($tran, true);
+
+        $signData = $data_info['1'];
+        //获取第一个'='的位置
+        $location = strpos($signData, '=');
+        //截取第一个'='后面的字符串
+        $sign = substr($signData, $location + 1);
+
+        //签名验证
+        $result = $this->verify($tran, $sign, $this->formatPubKey());
+
+        if ($result){
+            throw new DefaultException('verify error');
+        }
+
+        $user_id = explode($tran['appuserid'], '#');
+
+        return [
+            'transaction' => $tran['cporderid'],
+            'reference'   => $tran['transid'],
+            'amount'      => rand($tran['money'] / 100, 2),
+            'currency'    => 'CNY',
+            'userId'      => $user_id['0'],         //只需要user_id server_id 不需要
+        ];
+    }
+
+    public function success()
+    {
+        exit('SUCCESS');
     }
 
     public function tradeBuild($parameter = [])
@@ -119,4 +159,34 @@ class Sumsung extends ProviderAbstract
             '-----END PRIVATE KEY-----';
         return $private_key;
     }
+
+    //格式化公钥
+    private function formatPubKey(){
+        $private_key = "-----BEGIN PUBLIC KEY-----\n" .
+            chunk_split($this->option['public_key'], 64, "\n") .
+            '-----END PUBLIC KEY-----';
+        return $private_key;
+    }
+
+    /**RSA验签
+     * $data待签名数据
+     * $sign需要验签的签名
+     * $pubKey爱贝公钥
+     * 验签用爱贝公钥，摘要算法为MD5
+     * return 验签是否通过 bool值
+     */
+    function verify($data, $sign, $pubKey)  {
+        //转换为openssl格式密钥
+        $res = openssl_get_publickey($pubKey);
+
+        //调用openssl内置方法验签，返回bool值
+        $result = (bool)openssl_verify($data, base64_decode($sign), $res, OPENSSL_ALGO_MD5);
+
+        //释放资源
+        openssl_free_key($res);
+
+        //返回资源是否成功
+        return $result;
+    }
+
 }
