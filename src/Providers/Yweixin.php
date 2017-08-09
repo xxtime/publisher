@@ -90,4 +90,10 @@ class Yweixin extends ProviderAbstract
 
         return $param;
     }
+
+    public function success()
+    {
+        echo json_encode(array('ret' => 0, 'msg' => 'OK'));
+        exit;
+    }
 }

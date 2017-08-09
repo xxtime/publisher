@@ -82,4 +82,10 @@ class Jile extends ProviderAbstract{
 
         return $param;
     }
+
+    public function success()
+    {
+        $arr = array('errno'=>0 , 'errmsg' => '' , 'data' => array('status'=>0));
+        exit(json_encode($arr));
+    }
 }
