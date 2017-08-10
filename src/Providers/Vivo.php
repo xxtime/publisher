@@ -46,24 +46,66 @@ class Vivo extends ProviderAbstract
      */
     public function notify()
     {
-        $respCode = $_REQUEST['respCode'];
-        if ($respCode != 200) {
+        $request = file_get_contents("php://input");
+
+        $info = explode('&', $request);
+
+        //截取code
+        $respCode = explode('=', $info['2']);
+
+        if ($respCode['1'] != 200) {
             throw new DefaultException('error order');
         }
 
-        $param['appId'] = $_REQUEST['appId'];
-        $param['cpId'] = $_REQUEST['cpId'];
-        $param['cpOrderNumber'] = $_REQUEST['cpOrderNumber'];
-        $param['extInfo'] = $_REQUEST['extInfo'];
-        $param['orderAmount'] = $_REQUEST['orderAmount'];
-        $param['orderNumber'] = $_REQUEST['orderNumber'];
-        $param['payTime'] = $_REQUEST['payTime'];
-        $param['respCode'] = $respCode;
-        $param['respMsg'] = $_REQUEST['respMsg'];
-        $param['tradeStatus'] = $_REQUEST['tradeStatus'];
-        $param['tradeType'] = $_REQUEST['tradeType'];
-        $param['uid'] = $_REQUEST['uid'];
-        $sign = $_REQUEST['signature'];
+        //获取uid
+        $uid = explode('=', $info['0']);
+
+        //获取appId
+        $appId = explode('=', $info['4']);
+
+        //获取cpOrderNumber
+        $cpOrderNumber = explode('=', $info['6']);
+
+        //获取extInfo
+        $extInfo = explode('=', $info['11']);
+
+        //获取orderAmount
+        $orderAmount = explode('=', $info['9']);
+
+        //获取cpId
+        $cpId = explode('=', $info['7']);
+
+        //获取orderNumber
+        $orderNumber = explode('=', $info['10']);
+
+        //获取payTime
+        $payTime = explode('=', $info['5']);
+
+        //获取respMsg
+        $respMsg = explode('=', $info['12']);
+
+        //获取tradeStatus
+        $tradeStatus = explode('=', $info['3']);
+
+        //获取tradeType
+        $tradeType = explode('=', $info['1']);
+
+        //获取signature
+        $signature = explode('=', $info['13']);
+
+        $param['appId'] = $appId['1'];
+        $param['cpId'] = $cpId['1'];
+        $param['cpOrderNumber'] = $cpOrderNumber['1'];
+        $param['extInfo'] = $extInfo['1'];
+        $param['orderAmount'] = $orderAmount['1'];
+        $param['orderNumber'] = $orderNumber['1'];
+        $param['payTime'] = $payTime['1'];
+        $param['respCode'] = $respCode['1'];
+        $param['respMsg'] = urldecode($respMsg['1']);
+        $param['tradeStatus'] = $tradeStatus['1'];
+        $param['tradeType'] = $tradeType['1'];
+        $param['uid'] = $uid['1'];
+        $sign = $signature['1'];
 
         $this->check_sign($param, $sign);
 
@@ -141,7 +183,7 @@ class Vivo extends ProviderAbstract
         $signStr = trim($signStr, '&');
 
         $signature = strtolower(md5($signStr . '&' . strtolower(md5($this->option['app_key']))));
-
+        
         if (strtolower($sign) != strtolower($signature)){
             throw  new DefaultException('sign error');
         }
