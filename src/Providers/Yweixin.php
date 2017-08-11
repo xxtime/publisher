@@ -13,7 +13,7 @@ class Yweixin extends ProviderAbstract
 {
     public function verifyToken($token = '', $option = [])
     {
-        $url = 'http://ysdk.qq.com/auth/wx_check_token?';    //此地址是测试地址,不是正式地址
+        $url = 'http://ysdktest.qq.com/auth/wx_check_token?';    //此地址是测试地址,不是正式地址
 
         $timeStamp = time();
 
@@ -52,7 +52,7 @@ class Yweixin extends ProviderAbstract
             'pf'                   => $req['pf'],
             'pfkey'              => $req['pfkey'],
             'zoneid'                => $req['zoneid'],
-            'appid'                => $this->option['app_id'],
+            'appid'                => $this->option['payapp_id'],
             'ts'                => time(),
         );
 
