@@ -14,7 +14,7 @@ class Yqq extends ProviderAbstract
 
     public function verifyToken($token = '', $option = [])
     {
-        $url = 'http://ysdktest.qq.com/auth/qq_check_token?';    //此地址是测试地址,不是正式地址
+        $url = 'http://ysdk.qq.com/auth/qq_check_token?';    //此地址是测试地址,不是正式地址
 
         $timeStamp = time();
 

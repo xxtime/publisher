@@ -14,6 +14,13 @@ class downjoy extends ProviderAbstract
 
     public function verifyToken($token = '', $option = [])
     {
+
+        if(strstr($token,'ZB_')){
+            $url = 'https://ctslave.d.cn/api/cp/checkToken?';
+        }else{
+            $url = 'https://ctmaster.d.cn/api/cp/checkToken?';
+        }
+
         $param = [
             'appid'  => $this->app_id,
             'appkey' => $this->app_key,
@@ -25,7 +32,7 @@ class downjoy extends ProviderAbstract
         unset($param['appkey']);
         $param['sig'] = $sign;
 
-        $url = 'http://ngsdk.d.cn/api/cp/checkToken?' . http_build_query($param);
+        $url .=  http_build_query($param);
         $response = file_get_contents($url);
         $result = json_decode($response, true);
         if ($result['valid'] == 1 && $result['msg_code'] == 2000) {
