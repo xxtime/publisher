@@ -80,7 +80,7 @@ class Lenovo extends ProviderAbstract
         $param['amount'] = round($data['money'] / 100, 2);                      // 总价.单位: 分
         $param['transaction'] = $data['exorderno'];                             // 订单id
         $param['currency'] = 'CNY';                                             // 货币类型
-        $param['reference'] = '';                             // 第三方订单ID
+        $param['reference'] = $data['exorderno'];                             // 第三方订单ID
         $param['userId'] = '';                        // 第三方账号ID
 
         // 检查签名

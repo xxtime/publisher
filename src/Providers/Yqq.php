@@ -45,19 +45,17 @@ class Yqq extends ProviderAbstract
 
     public function notify()
     {
-        $url = 'https://ysdktest.qq.com';
-        $uri = '/mpay/get_balance_m';
+        $url = 'https://ysdk.qq.com';
+        $uri = '/v3/r/mpay/get_balance_m';
         $req = $_REQUEST;
         $data = array(
             'openid'               => $req['openid'],
             'openkey'                => $req['openkey'],
             'pf'                   => $req['pf'],
             'pfkey'              => $req['pfkey'],
-            'zoneid'                => $req['custom'],
+            'zoneid'                => $req['zoneid'],
             'appid'                => $this->app_id,
             'ts'                => time(),
-            'userip'                => 'common',
-            'format'                => 'json',
         );
 
         ksort($data);
@@ -66,35 +64,34 @@ class Yqq extends ProviderAbstract
         foreach ($data as $k => $v) {
             $str1 .= "$k=$v&";
         }
-        $str2 = urlencode(trim($str1, '&'));
+        $str2 = rawurlencode(trim($str1, '&'));
 
-        $str3 = 'GET' . urlencode($uri) . $str2;
+        $str3 = 'GET&' . rawurlencode($uri).'&' . $str2;
+
         $appkey = $this->app_key . '&';
-        $sig = hash_hmac('sha1', $str3, $appkey);
-        $sig = base64_encode($sig);
+        $sig = $this->getSignature($str3, $appkey);
 
-        $url .= $uri . '?' . $str1 .'&sig='. urlencode($sig);
-        $cookie = 'session_id ="'.urlencode('openid').'";session_type = "'.urlencode('kp_actoken').'";org_loc="'.urlencode('/mpay/get_balance_m').'"';
-
+        $url .=  '/mpay/get_balance_m?' . $str1 .'sig='. rawurlencode($sig);
+        $cookie = 'session_id='.rawurlencode('openid').';session_type='.rawurlencode('kp_actoken').';org_loc='.rawurlencode('/mpay/pay_m').';';
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_HEADER, 1);
+        curl_setopt($curl, CURLOPT_HEADER, 0);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_COOKIE, $cookie);
         $data = curl_exec($curl);
         curl_close($curl);
 
-        dd($data);
+        $result = json_decode($data, true);
 
-//        if ($sig != $mysig) {
-//            throw new DefaultException('sign error');
-//        }
+        if ($result['ret'] != 0 ) {
+            throw new DefaultException('sign error');
+        }
 
         // 平台参数
-        $param['amount'] = round($req['amt'] / 10, 2);                              // 总价.单位: 分
-        $param['transaction'] = $req['billno'];                              // 订单id
+        $param['amount'] = round($req['amount'] / 100, 2);                              // 总价.单位: 分
+        $param['transaction'] = $req['orderid'] ;                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
-        $param['reference'] = $req['billno'];                           // 第三方订单ID
+        $param['reference'] = $req['orderid'];                           // 第三方订单ID
         $param['userId'] = '';                                   // 第三方账号ID
 
         return $param;
@@ -102,7 +99,34 @@ class Yqq extends ProviderAbstract
 
     public function success()
     {
-        echo json_encode(array('ret' => 0, 'msg' => 'OK'));
-        exit;
+        exit(json_encode(array('code'=>0, 'msg'=>'success')));
+    }
+
+    private function getSignature($str, $key) {
+        $signature = "";
+        if (function_exists('hash_hmac')) {
+            $signature = base64_encode(hash_hmac("sha1", $str, $key, true));
+        } else {
+            $blocksize = 64;
+            $hashfunc = 'sha1';
+            if (strlen($key) > $blocksize) {
+                $key = pack('H*', $hashfunc($key));
+            }
+            $key = str_pad($key, $blocksize, chr(0x00));
+            $ipad = str_repeat(chr(0x36), $blocksize);
+            $opad = str_repeat(chr(0x5c), $blocksize);
+            $hmac = pack(
+                'H*', $hashfunc(
+                    ($key ^ $opad) . pack(
+                        'H*', $hashfunc(
+                            ($key ^ $ipad) . $str
+                        )
+                    )
+                )
+            );
+            $signature = base64_encode($hmac);
+        }
+        return $signature;
     }
 }
+

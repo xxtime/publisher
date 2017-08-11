@@ -88,7 +88,7 @@ class Amigo extends ProviderAbstract
         $param['currency'] = 'CNY';                             // 货币类型
 
         // 第三方参数【可选,暂未使用】
-        $param['reference'] = '';    // 第三方订单ID
+        $param['reference'] = $_REQUEST['out_order_no'];    // 第三方订单ID
         $param['userId'] = '';                // 第三方账号ID
 
         // 检查签名
