@@ -32,7 +32,7 @@ class Baiwen extends ProviderAbstract
      */
     public function notify()
     {
-        $param['user_id'] = $_REQUEST['user_id'];               //平台账号ID
+        $param['other'] = $_REQUEST['other'];               //平台账号ID
         $param['order_id'] = $_REQUEST['order_id'];             //订单ID  渠道的平台id
         $param['total_money'] = $_REQUEST['total_money'];       //金额
         $param['time'] = $_REQUEST['time'];                     //登入的游戏服务器id
@@ -40,12 +40,18 @@ class Baiwen extends ProviderAbstract
 
         $this->check_sign($param, $sign);
 
+        if(strstr($_REQUEST['time'] , '-')){
+            $amount = $_REQUEST['total_money'] * 100;
+        }else{
+            $amount = round($_REQUEST['total_money'] / 100, 2);
+        }
+
         return [
-            'transaction' => $param['order_id'],
-            'reference'   => '',
-            'amount'      => $param['total_money'],
+            'transaction' => $_REQUEST['order_id'],
+            'reference'   => $_REQUEST['order_id'],
+            'amount'      => $amount,
             'currency'    => '',
-            'userId'      => $param['user_id']
+            'userId'      => $_REQUEST['other']
         ];
 
     }
@@ -55,11 +61,16 @@ class Baiwen extends ProviderAbstract
         //数组排序
         ksort($data);
         $result = '';
-        foreach ($data as $k => $v) {
-            $result .= $k . '=' . $v . '&';
+
+        foreach($data as $k=>$v){
+            $v = str_replace(' ','',$v) ;
+            $result .="$k=$v" ;
         }
-        $result = trim($result, '&');
-        if (md5($result . $this->app_key) != $sign) {
+        $result.= $this->app_key ;
+
+        $mysign = md5($result);
+
+        if ($mysign != $sign) {
             throw new DefaultException('sign error');
         }
     }
