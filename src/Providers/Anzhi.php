@@ -9,16 +9,18 @@ namespace Xt\Publisher\Providers;
 
 use Xt\Publisher\DefaultException;
 
-class Anzhi extends ProviderAbstract{
+class Anzhi extends ProviderAbstract
+{
 
     //安智的服务端验证url 需要从客户端发来的请求中获取
-    public function verifyToken($token = '', $option = []){
+    public function verifyToken($token = '', $option = [])
+    {
         $url = $_REQUEST['custom'];
         $param = [
-            'time' => substr($this->udate('YmdHisu'), 0, 17),
-            'appkey' => $this->app_key,
-            'cptoken' => $token,
-            'sign'  => md5($this->app_key . $token . $this->option['secret_key']),
+            'time'     => substr($this->udate('YmdHisu'), 0, 17),
+            'appkey'   => $this->app_key,
+            'cptoken'  => $token,
+            'sign'     => md5($this->app_key . $token . $this->option['secret_key']),
             'deviceId' => $_REQUEST['deviceId']
         ];
 
@@ -39,7 +41,7 @@ class Anzhi extends ProviderAbstract{
         $response = json_decode($response, true);
 
         //如果response 不等于一 抛出异常
-        if ($response['code'] !== 1){
+        if ($response['code'] !== 1) {
             throw new DefaultException($response);
         }
 
@@ -53,7 +55,8 @@ class Anzhi extends ProviderAbstract{
         return array('uid' => $uid, 'username' => '', 'original' => (array)$response);
     }
 
-    public function notify(){
+    public function notify()
+    {
         $data = $_REQUEST['data'];
         if (empty($data)) {
             throw new DefaultException('error order');
@@ -61,14 +64,16 @@ class Anzhi extends ProviderAbstract{
 
         $data = str_replace(' ', '+', $data);
         $result = $this->decrypt($data);
-        $result = json_decode($result ,true);
+        $result = json_decode($result, true);
 
-        if(empty($result)){
+        if (empty($result)) {
             throw new DefaultException('sign error');
         }
 
         // 平台参数
-        $param['amount'] = round(($result['payAmount']+$result['redBagMoney']) / 100, 2);                              // 总价.单位: 分
+        $redBagMoney = empty($result['redBagMoney']) ? 0 : $result['redBagMoney'];
+        $param['amount'] = round(($result['payAmount'] + $redBagMoney) / 100,
+            2);                              // 总价.单位: 分
         $param['transaction'] = $result['cpInfo'];                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
         $param['reference'] = $result['orderId'];                           // 第三方订单ID
@@ -86,35 +91,40 @@ class Anzhi extends ProviderAbstract{
     /**
      * 解密
      */
-    public  function decrypt($value) {
-        $td = mcrypt_module_open ( MCRYPT_3DES, '', MCRYPT_MODE_ECB, '' );
+    public function decrypt($value)
+    {
+        $td = mcrypt_module_open(MCRYPT_3DES, '', MCRYPT_MODE_ECB, '');
         //$iv = pack ( 'H16', $this->iv );
         //$key = pack ( 'H48', $this->key );
-        mcrypt_generic_init ( $td, $this->option['secret_key'],'00000000');
-        $ret = trim ( mdecrypt_generic ( $td, base64_decode ( $value ) ) );
-        $ret = $this->UnPaddingPKCS7 ( $ret );
-        mcrypt_generic_deinit ( $td );
-        mcrypt_module_close ( $td );
+        mcrypt_generic_init($td, $this->option['secret_key'], '00000000');
+        $ret = trim(mdecrypt_generic($td, base64_decode($value)));
+        $ret = $this->UnPaddingPKCS7($ret);
+        mcrypt_generic_deinit($td);
+        mcrypt_module_close($td);
         return $ret;
     }
 
-    private  function UnPaddingPKCS7($data) {
-        $padlen = ord (substr($data, (strlen( $data )-1), 1 ) );
-        if ($padlen > 8 )
+    private function UnPaddingPKCS7($data)
+    {
+        $padlen = ord(substr($data, (strlen($data) - 1), 1));
+        if ($padlen > 8) {
             return $data;
+        }
 
-        for($i = -1*($padlen-strlen($data)); $i < strlen ( $data ); $i ++) {
-            if (ord ( substr ( $data, $i, 1 ) ) != $padlen) {
+        for ($i = -1 * ($padlen - strlen($data)); $i < strlen($data); $i++) {
+            if (ord(substr($data, $i, 1)) != $padlen) {
                 return false;
             }
         }
 
-        return substr ( $data, 0, -1*($padlen-strlen ( $data ) ) );
+        return substr($data, 0, -1 * ($padlen - strlen($data)));
     }
 
-    private function  udate($format = 'u', $utimestamp = null) {
-        if (is_null($utimestamp))
+    private function udate($format = 'u', $utimestamp = null)
+    {
+        if (is_null($utimestamp)) {
             $utimestamp = microtime(true);
+        }
 
         $timestamp = floor($utimestamp);
         $milliseconds = round(($utimestamp - $timestamp) * 1000000);
