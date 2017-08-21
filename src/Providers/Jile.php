@@ -23,13 +23,13 @@ class Jile extends ProviderAbstract{
         $result = json_decode($response, true);
 
         //如果遇到错误 则抛出错误
-        if ($result['status'] != 0) {
+        if ($result['errno'] != 0) {
             throw new DefaultException($response);
         }
 
         return [
-            'uid'      => $result['username'],
-            'username' => $result['nickname'],
+            'uid'      => $result['data']['uid'],
+            'username' => '',
             'original' => $result
         ];
     }
@@ -74,7 +74,7 @@ class Jile extends ProviderAbstract{
         }
 
         // 平台参数
-        $param['amount'] = $req['total_fee'];                              // 总价.单位: 分
+        $param['amount'] = round($req['total_fee'] / 100, 2);                      // 总价.单位: 分
         $param['transaction'] = $req['cp_trade_no'];                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
         $param['reference'] = $req['trade_no'];                           // 第三方订单ID

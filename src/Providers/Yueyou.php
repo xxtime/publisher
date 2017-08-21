@@ -9,7 +9,7 @@ namespace Xt\Publisher\Providers;
 
 use Xt\Publisher\DefaultException;
 
-class yueyou extends ProviderAbstract
+class Yueyou extends ProviderAbstract
 {
     public function verifyToken($token = '', $option = [])
     {
@@ -17,7 +17,7 @@ class yueyou extends ProviderAbstract
 
         $time = time();
         $data = [
-            'AppID'       => $this->app_id,
+            'appId'       => $this->app_id,
             'timestamp' => $time,
             'token'   => $token
         ];
@@ -31,7 +31,7 @@ class yueyou extends ProviderAbstract
 
         $param = http_build_query($data);
 
-        $url = $url . $param;
+        $url = $url .'?'. $param;
         $response = file_get_contents($url);
         $result = json_decode($response, true);
 
@@ -74,7 +74,7 @@ class yueyou extends ProviderAbstract
         }
 
         // 平台参数
-        $param['amount'] = round($req['amount'] / 100, 2);                              // 总价.单位: 分
+        $param['amount'] = $req['amount'];                              // 总价.单位: 分
         $param['transaction'] = $req['cpOrderId'];                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
         $param['reference'] = $req['orderId'];                           // 第三方订单ID

@@ -21,7 +21,7 @@ class Yubi extends ProviderAbstract
             'token'   => $token,
         ];
 
-        $response = $this->http_curl_post($url, $param);
+        $response = $this->http_curl_post($url, json_encode($param));
 
         $result = json_decode($response, true);
 
@@ -41,10 +41,9 @@ class Yubi extends ProviderAbstract
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_NOBODY, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         $curl_result = curl_exec($ch);
         curl_close($ch);
@@ -75,8 +74,8 @@ class Yubi extends ProviderAbstract
         }
 
         // 平台参数
-        $param['amount'] = round($req['price'] / 100, 2);                              // 总价.单位: 分
-        $param['transaction'] = $req['out_trade_no'];                              // 订单id
+        $param['amount'] = $req['price'];                              // 总价.单位: 分
+        $param['transaction'] = $req['extend'];                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
         $param['reference'] = $req['out_trade_no'];                           // 第三方订单ID
         $param['userId'] = '';                                   // 第三方账号ID
