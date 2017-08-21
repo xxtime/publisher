@@ -38,21 +38,21 @@ class Sdk4399 extends ProviderAbstract{
 
     public function notify()
     {
-        $resquest = $_REQUEST;
+        $oriContent = file_get_contents('php://input');
 
         $param = [
-            'orderid' => $resquest['orderid'],
-            'p_type'  => $resquest['p_type'],
-            'uid'     => $resquest['uid'],
-            'money'   => $resquest['money'],
-            'gamemoney' => $resquest['gamemoney'],
+            'orderid' => $oriContent['orderid'],
+            'p_type'  => $oriContent['p_type'],
+            'uid'     => $oriContent['uid'],
+            'money'   => $oriContent['money'],
+            'gamemoney' => $oriContent['gamemoney'],
             'secrect' => $this->option['secrect_key'],
-            'mark'    => $resquest['mark'],
-            'time'    => $resquest['time'],
+            'mark'    => $oriContent['mark'],
+            'time'    => $oriContent['time'],
         ];
 
-        $sign = $resquest['sign'];
-
+        $sign = $oriContent['sign'];
+        
         $this->check_sign($param, $sign);
 
         return [
