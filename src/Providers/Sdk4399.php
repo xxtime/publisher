@@ -58,8 +58,8 @@ class Sdk4399 extends ProviderAbstract{
 
         return [
             'transaction' => $param['mark'],
-            'reference'   => $param['orderId'],
-            'amount'      => rand($param['amount'] / 100, 2),
+            'reference'   => $param['orderid'],
+            'amount'      => rand($param['money'] / 100, 2),
             'currency'    => '',
             'userId'      => $param['uid'],
         ];
