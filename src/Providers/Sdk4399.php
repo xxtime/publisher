@@ -10,6 +10,8 @@ namespace Xt\Publisher\Providers;
 use Xt\Publisher\DefaultException;
 
 class Sdk4399 extends ProviderAbstract{
+    private $money;
+    private $gamemoney;
 
     public function verifyToken($token = '', $option = [])
     {
@@ -40,12 +42,15 @@ class Sdk4399 extends ProviderAbstract{
     {
         $resquest = $_REQUEST;
 
+        $this->money = $resquest['money'];
+        $this->gamemoney = $resquest['gamemoney'];
+
         $param = [
             'orderid' => $resquest['orderid'],
             'p_type'  => $resquest['p_type'],
             'uid'     => $resquest['uid'],
-            'money'   => $resquest['money'],
-            'gamemoney' => $resquest['gamemoney'],
+            'money'   => $this->money,
+            'gamemoney' => $this->gamemoney,
             'serverid' => $resquest['serverid'],
             'secrect' => $this->option['secrect_key'],
             'mark'    => $resquest['mark'],
@@ -78,5 +83,18 @@ class Sdk4399 extends ProviderAbstract{
         if (md5($sign_str) != $sign){
             throw new DefaultException('sign error');
         }
+    }
+
+    public function success()
+    {
+        $data = [
+            "status"=>2,
+            "code"=>null,
+            "money"=>$this->money,
+            "gamemoney"=>$this->gamemoney,
+            "msg"=>"充值成功"
+        ];
+
+        exit(json_encode($data));
     }
 }
