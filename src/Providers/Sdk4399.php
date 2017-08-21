@@ -38,21 +38,22 @@ class Sdk4399 extends ProviderAbstract{
 
     public function notify()
     {
-        $oriContent = file_get_contents('php://input');
+        $resquest = $_REQUEST;
 
         $param = [
-            'orderid' => $oriContent['orderid'],
-            'p_type'  => $oriContent['p_type'],
-            'uid'     => $oriContent['uid'],
-            'money'   => $oriContent['money'],
-            'gamemoney' => $oriContent['gamemoney'],
+            'orderid' => $resquest['orderid'],
+            'p_type'  => $resquest['p_type'],
+            'uid'     => $resquest['uid'],
+            'money'   => $resquest['money'],
+            'gamemoney' => $resquest['gamemoney'],
+            'serverid' => $resquest['serverid'],
             'secrect' => $this->option['secrect_key'],
-            'mark'    => $oriContent['mark'],
-            'time'    => $oriContent['time'],
+            'mark'    => $resquest['mark'],
+            'time'    => $resquest['time'],
         ];
 
-        $sign = $oriContent['sign'];
-        
+        $sign = $resquest['sign'];
+
         $this->check_sign($param, $sign);
 
         return [
@@ -71,9 +72,9 @@ class Sdk4399 extends ProviderAbstract{
         $sign_str = '';
 
         foreach ($data as $key =>  $value){
-            $sign_str .= $value;
+            $sign_str .=  $value;
         }
-
+        
         if (md5($sign_str) != $sign){
             throw new DefaultException('sign error');
         }
