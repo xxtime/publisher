@@ -57,19 +57,19 @@ class Meitu extends ProviderAbstract{
     }
 
     public function success(){
-        
+        exit(1);
     }
 
     //生成flag的值
     private function productFlag($app_id, $uid, $token){
-        $md5_str = $app_id . '.' . $uid . '.' . $token . '.' . $this->option['login_key'];
+        $md5_str = $app_id .  $uid .  $token .  $this->option['login_key'];
         return md5($md5_str);
     }
 
     //验证sign的合法性
     private function check_sign($sign){
         $req = $_REQUEST;
-        
+
         $param = [
             'uid' => $req['uid'],
             'money' => $req['money'],
