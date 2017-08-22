@@ -9,7 +9,7 @@ namespace Xt\Publisher\Providers;
 
 use Xt\Publisher\DefaultException;
 
-class Sumsung extends ProviderAbstract
+class Samsung extends ProviderAbstract
 {
     //samsung没有登录系统 直接返回
     public function verifyToken($token = '', $option = [])
