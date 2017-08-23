@@ -38,7 +38,7 @@ class Iqy extends ProviderAbstract
         $str1 = '';
         foreach ($data as $k => $v) {
             $str1 .= "$v";
-        }
+        }  
         $mysign = md5($str1 . $this->app_key);
 
         if ($sign != $mysign) {
