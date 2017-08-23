@@ -47,9 +47,9 @@ class Meitu extends ProviderAbstract{
         $this->check_sign($sign);
 
         return [
-            'transaction' => $_REQUEST['order_id'],
-            'reference'   => $_REQUEST['ext'],
-            'amount'      => $_REQUEST['money'] * 100,          //平台是以元为单位
+            'transaction' => $_REQUEST['ext'],
+            'reference'   => $_REQUEST['orderid'],
+            'amount'      => $_REQUEST['money'],          //平台是以元为单位
             'currency'    => 'CNY',
             'userId'      => $_REQUEST['uid']
         ];
@@ -57,7 +57,7 @@ class Meitu extends ProviderAbstract{
     }
 
     public function success(){
-        exit(1);
+        echo '1'; exit;
     }
 
     //生成flag的值
