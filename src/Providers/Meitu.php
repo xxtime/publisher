@@ -82,10 +82,8 @@ class Meitu extends ProviderAbstract{
 
         $sign_str = '';
         foreach ($param as $info){
-            $sign_str .= '.' . $info;
+            $sign_str .=  $info;
         }
-
-        $sign_str = trim($sign_str, '.');
         
         if ($sign != md5($sign_str)){
             throw  new  DefaultException('sign error');
