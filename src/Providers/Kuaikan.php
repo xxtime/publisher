@@ -58,9 +58,14 @@ class Kuaikan extends ProviderAbstract{
         ];
     }
 
+    // $response = "{\"wares_id\":1,\"pay_status\":2,\"out_order_id\":\"1104\",\"trans_money\":0.0,\"trans_id\":\"32461612231438102462\",\"currency\":\"RMB\",\"pay_type\":402,\"trans_result\":1,\"trans_time\":1482475126000,\"open_uid\":\"1104\",\"order_id\":\"7501085669965004888881024\",\"app_id\":1}";
     public function notify()
     {
-        //快看订单回调 需要先使用下单接口 确定订单的有效性 然后才可以检查sign
+        //如果 回调没有发送成功, 需要通过查询订单接口进行查询信息
+        $req = $_REQUEST;
+        $response = json_decode($req, true);
+
+
     }
 
     private function productSign($param){
@@ -78,5 +83,23 @@ class Kuaikan extends ProviderAbstract{
 
         $sign_str .= 'key' . '=' . $this->option['secrect_key'];
         return base64_encode(md5($sign_str, true));
+    }
+
+    public function tradeBuild($parameter = []){
+        $data['app_id'] = $this->app_id;
+        $data['wares_id'] = $parameter['product_id'];
+        $data['out_order_id'] = $parameter['transaction'];
+        $data['open_uid'] = $parameter['raw']['uid'];
+        $data['out_notify_url'] = $this->notify_url;
+
+        $sign = $this->productSign($data);
+
+        $param['trans_data'] = json_encode($data);
+        $param['sign'] = $sign;
+
+        return [
+            'reference' => '',      // 发行商订单号
+            'raw'       => $param   // 发行渠道返回的原始信息, 也可添加额外参数
+        ];
     }
 }
