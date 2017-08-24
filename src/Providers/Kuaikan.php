@@ -23,7 +23,7 @@ class Kuaikan extends ProviderAbstract{
         ];
 
         $sign = $this->productSign($param);
-        $param['sign'] = $sign;
+        $param['sign'] = urlencode($sign);
 
         $param_str = '';
         foreach ($param as $key=>$value){
@@ -77,7 +77,6 @@ class Kuaikan extends ProviderAbstract{
         }
 
         $sign_str .= 'key' . '=' . $this->option['secrect_key'];
-        
         return base64_encode(md5($sign_str, true));
     }
 }
