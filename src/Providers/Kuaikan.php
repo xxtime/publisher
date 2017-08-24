@@ -76,8 +76,8 @@ class Kuaikan extends ProviderAbstract{
             $sign_str .= $key . '=' . $value . '&';
         }
 
-        $sign_str = 'key' . '=' . $this->option['secrect_key'];
-
+        $sign_str .= 'key' . '=' . $this->option['secrect_key'];
+        
         return base64_encode(md5($sign_str, true));
     }
 }
