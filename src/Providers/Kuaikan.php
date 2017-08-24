@@ -23,11 +23,17 @@ class Kuaikan extends ProviderAbstract{
         ];
 
         $sign = $this->productSign($param);
-
         $param['sign'] = $sign;
 
-        $param = http_build_query($param);
-        $url = $url . $param;
+        $param_str = '';
+        foreach ($param as $key=>$value){
+            $param_str .= $key . '=' . $value . '&';
+        }
+
+        $param_str = trim($param_str, '&');
+
+        $url = $url . $param_str;
+
         $response = file_get_contents($url);
         $result = json_decode($response, true);
         if ($result['code'] != 200){
@@ -72,6 +78,6 @@ class Kuaikan extends ProviderAbstract{
 
         $sign_str = 'key' . '=' . $this->option['secrect_key'];
 
-        return base64_encode(md5($sign_str));
+        return base64_encode(md5($sign_str, true));
     }
 }
