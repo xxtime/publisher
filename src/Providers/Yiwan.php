@@ -14,15 +14,15 @@ class Yiwan extends ProviderAbstract
 
     public function verifyToken($token = '', $option = [])
     {
-        $openid = $option['openid'];
+        $openid = $option['uid'];
         $sign = md5($openid . '|' . $token . '|' . $this->app_key);
 
         //如果有异常 抛出异常
-        if ($option['sign'] != $sign) {
+        if ($option['custom'] != $sign) {
             throw new DefaultException('sign error');
         }
 
-        return array('uid' => $option['openid'], 'username' => '', 'original' => $option);
+        return array('uid' => $option['uid'], 'username' => '', 'original' => $option);
     }
 
     public function notify()
