@@ -70,7 +70,7 @@ class Kuaikan extends ProviderAbstract{
         return [
             'transaction' => $trans_data['out_order_id'],
             'reference'   => $trans_data['trans_id'],
-            'amount'      => round($trans_data['trans_money'] * 100, 2),
+            'amount'      => $trans_data['trans_money'],
             'currency'    => 'CNY',
             'userId'      => $trans_data['open_uid']
         ];
@@ -114,6 +114,8 @@ class Kuaikan extends ProviderAbstract{
     }
 
     private function check_sign($param, $sign){
+        $sign = str_replace(' ', '+', $sign);
+
         $param['trans_money'] = strval($param['trans_money'].'.0');
 
         ksort($param);
