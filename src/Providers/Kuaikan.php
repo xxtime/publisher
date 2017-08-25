@@ -87,8 +87,8 @@ class Kuaikan extends ProviderAbstract{
 
     public function tradeBuild($parameter = []){
         $data['app_id'] = "$this->app_id";
-        $data['wares_id'] = $parameter['product_id'];
-        $data['out_order_id'] = intval(substr($parameter['product_id'], -1));
+        $data['wares_id'] = intval(substr($parameter['product_id'], -1));
+        $data['out_order_id'] = $parameter['transaction'];
         $data['open_uid'] = $parameter['raw']['data']['open_id'];
         $data['out_notify_url'] = $this->option['notify_url'];
 
