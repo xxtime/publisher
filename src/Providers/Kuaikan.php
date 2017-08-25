@@ -63,8 +63,17 @@ class Kuaikan extends ProviderAbstract{
     {
         //如果 回调没有发送成功, 需要通过查询订单接口进行查询信息
         $req = $_REQUEST;
-        $response = json_decode($req, true);
+        $trans_data = json_decode($req['trans_data'], true);
+        $sign_kuaikan = $req['sign'];
+        $this->check_sign($trans_data, $sign_kuaikan);
 
+        return [
+            'transaction' => $trans_data['out_order_id'],
+            'reference'   => $trans_data['trans_id'],
+            'amount'      => round($trans_data['trans_money'] * 100, 2),
+            'currency'    => 'CNY',
+            'userId'      => $trans_data['open_uid']
+        ];
 
     }
 
@@ -80,8 +89,9 @@ class Kuaikan extends ProviderAbstract{
             }
             $sign_str .= $key . '=' . $value . '&';
         }
-
+        
         $sign_str .= 'key' . '=' . $this->option['secrect_key'];
+
         return base64_encode(md5($sign_str, true));
     }
 
@@ -101,5 +111,26 @@ class Kuaikan extends ProviderAbstract{
             'reference' => '',      // 发行商订单号
             'raw'       => $param   // 发行渠道返回的原始信息, 也可添加额外参数
         ];
+    }
+
+    private function check_sign($param, $sign){
+        $param['trans_money'] = strval($param['trans_money'].'.0');
+
+        ksort($param);
+
+        $sign_str = '';
+        foreach ($param as $key => $value){
+            //如果为空 不参加签名
+            if ($value == ''){
+                unset($param[$key]);
+            }
+            $sign_str .= $key . '=' . $value . '&';
+        }
+
+        $sign_str .= 'key' . '=' . $this->option['secrect_key'];
+
+        if (base64_encode(md5($sign_str, true)) != $sign){
+            throw new DefaultException('sign error');
+        }
     }
 }
