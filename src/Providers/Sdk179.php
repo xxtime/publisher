@@ -16,24 +16,21 @@ class Sdk179 extends ProviderAbstract
         $url = 'http://gamesdk.padyun.com/api/?m=api&a=validate_token';
 
         $param = [
-            'u_id' => $option['user_id'],
-            'u_id' => $this->app_id,
+            'appid' => $this->app_id,
             't'   => $token,
         ];
 
         $response = $this->http_curl_post($url, $param);
 
-        $result = json_decode($response, true);
-
         //如果遇到错误 则抛出错误
-        if ($result['status'] != 1) {
+        if ($response != 'success') {
             throw new DefaultException($response);
         }
 
         return [
-            'uid'      => $result['user_id'],
-            'username' => $result['user_account'],
-            'original' => $result
+            'uid'      => $option['uid'],
+            'username' => '',
+            'original' => $option
         ];
     }
 
@@ -87,5 +84,10 @@ class Sdk179 extends ProviderAbstract
         $param['userId'] = '';                                   // 第三方账号ID
 
         return $param;
+    }
+
+    public function success()
+    {
+        exit('success');
     }
 }

@@ -30,7 +30,7 @@ class Leyou extends ProviderAbstract
         }
 
         return [
-            'uid'      => '',
+            'uid'      => $option['custom'],
             'username' => '',
             'original' => $option
         ];
@@ -73,6 +73,7 @@ class Leyou extends ProviderAbstract
         foreach ($data as $k => $v) {
             $str1 .= "$k=".urlencode($v).'&';
         }
+        $str1 = trim($str1, '&');
         $mysign = md5($str1);
 
         if ($sign != $mysign) {
@@ -81,11 +82,16 @@ class Leyou extends ProviderAbstract
 
         // 平台参数
         $param['amount'] = $req['amount'];                              // 总价.单位: 分
-        $param['transaction'] = $req['orderid'];                              // 订单id
+        $param['transaction'] = $req['attach'];                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
-        $param['reference'] = $req['orderId'];                           // 第三方订单ID
+        $param['reference'] = $req['orderid'];                           // 第三方订单ID
         $param['userId'] = '';                                   // 第三方账号ID
 
         return $param;
+    }
+
+    public function success()
+    {
+        exit('success');
     }
 }
