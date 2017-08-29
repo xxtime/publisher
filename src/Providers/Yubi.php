@@ -17,7 +17,7 @@ class Yubi extends ProviderAbstract
         $url = 'http://www.i7game.com/sdk.php/LoginNotify/login_verify';
 
         $param = [
-            'user_id' => $option['user_id'],
+            'user_id' => $option['uid'],
             'token'   => $token,
         ];
 
