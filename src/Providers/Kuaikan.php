@@ -36,26 +36,34 @@ class Kuaikan extends ProviderAbstract{
 
         $response = file_get_contents($url);
         $result = json_decode($response, true);
-        if ($result['code'] != 200){
+        if (!$result['data']['ret']){
             throw  new  DefaultException($result);
         }
+
         //如果合法 则获取用户信息
-        $userInfo_url = 'http://api.kkmh.com/v1/game/oauth/user_info?';
-
-        $userInfo_param = $token;
-
-        $userInfo_url =$userInfo_url . 'access_token' . '=' . $userInfo_param;
-        $res = file_get_contents($userInfo_url);
-        $user_result = json_decode($res, true);
-        if ($user_result['code'] != 200){
-            throw new DefaultException($user_result);
-        }
+//        $userInfo_url = 'http://api.kkmh.com/v1/game/oauth/user_info?';
+//
+//        $userInfo_param = $token;
+//
+//        $userInfo_url =$userInfo_url . 'access_token' . '=' . $userInfo_param;
+//        $res = file_get_contents($userInfo_url);
+//        $user_result = json_decode($res, true);
+//        if ($user_result['code'] != 200){
+//            throw new DefaultException($user_result);
+//        }
+//
+//        return [
+//            'uid' => $user_result['data']['open_id'],
+//            'username' => $user_result['data']['nickname'],
+//            'original' => (array)$user_result
+//        ];
 
         return [
-            'uid' => $user_result['data']['open_id'],
-            'username' => $user_result['data']['nickname'],
-            'original' => (array)$user_result
+            'uid' => $option['custom'],
+            'username' => '',
+            'original' => $option
         ];
+
     }
 
     // $response = "{\"wares_id\":1,\"pay_status\":2,\"out_order_id\":\"1104\",\"trans_money\":0.0,\"trans_id\":\"32461612231438102462\",\"currency\":\"RMB\",\"pay_type\":402,\"trans_result\":1,\"trans_time\":1482475126000,\"open_uid\":\"1104\",\"order_id\":\"7501085669965004888881024\",\"app_id\":1}";

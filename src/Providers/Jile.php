@@ -60,7 +60,7 @@ class Jile extends ProviderAbstract{
             'appsecret'        => $this->app_key,
             'total_fee'        => $req['total_fee'],
             'fee_type'   => $req['fee_type'],
-            'app_id'       => $req['app_id'],
+            'app_id'       => $this->app_id,
         );
 
         $str1 = '';
