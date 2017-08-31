@@ -33,7 +33,7 @@ class Samsung extends ProviderAbstract
 
         //解析transdata
         if(array_key_exists("transdata", $resp)) {
-            $respJson = json_decode($resp["transdata"]);
+            $respJson = json_decode($resp["transdata"], true);
         }
 
 
