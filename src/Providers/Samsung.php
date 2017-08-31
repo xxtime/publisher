@@ -24,40 +24,31 @@ class Samsung extends ProviderAbstract
     //渠道 回调
     public function notify()
     {
-        $request = file_get_contents("php://input");
+        $response = file_get_contents("php://input");
 
-        $request = urldecode($request);
-
-        $data_info = explode($request, '&');
-
-        $transData = $data_info['0'];
-        $trans = explode($transData, '=');
-        //获取订单信息字符串
-        $tran = $trans['1'];
-        //把订单信息转化成数组
-        $tran = json_decode($tran, true);
-
-        $signData = $data_info['1'];
-        //获取第一个'='的位置
-        $location = strpos($signData, '=');
-        //截取第一个'='后面的字符串
-        $sign = substr($signData, $location + 1);
-
-        //签名验证
-        $result = $this->verify($tran, $sign, $this->formatPubKey());
-
-        if ($result){
-            throw new DefaultException('verify error');
+        $arr=array_map(create_function('$v', 'return explode("=", $v);'), explode('&', $response));
+        foreach($arr as $value) {
+            $resp[($value[0])] = urldecode($value[1]);
         }
 
-        $user_id = explode($tran['appuserid'], '#');
+        //解析transdata
+        if(array_key_exists("transdata", $resp)) {
+            $respJson = json_decode($resp["transdata"]);
+        }
+
+
+        $result = $this->parseResp($response, $this->formatPubKey());
+
+        if (!$result){
+            throw new  DefaultException("sign error");
+        }
 
         return [
-            'transaction' => $tran['cporderid'],
-            'reference'   => $tran['transid'],
-            'amount'      => rand($tran['money'] / 100, 2),
+            'transaction' => $respJson['cporderid'],
+            'reference'   => $respJson['transid'],
+            'amount'      => $respJson['money'],
             'currency'    => 'CNY',
-            'userId'      => $user_id['0'],         //只需要user_id server_id 不需要
+            'userId'      => $respJson['appuserid'],         //只需要user_id server_id 不需要
         ];
     }
 
@@ -72,16 +63,16 @@ class Samsung extends ProviderAbstract
 
         //组装appuserid
         $userInfo = explode($_REQUEST['custom'], '-');
-        $appuserid = $userInfo['1']. '#' . $userInfo['0'];
+        $appuserid = $userInfo['1'] . '#' . $userInfo['0'];
 
         $transdata = [
-            'appid' => $this->option['app_id'],
-            'waresid' => $parameter['product_id'],
+            'appid'     => $this->option['app_id'],
+            'waresid'   => intval(substr($parameter['product_id'], -1)),          //产品id为 int类型
             'cporderid' => $parameter['transaction'],
             'currency'  => 'RMB',
-            'appuserid' => '',
-            'price' => $parameter['amount'],
-            'notifyurl' => $this->option['notifyurl']
+            'appuserid' => $appuserid,
+            'price'     => $parameter['amount'],
+            'notifyurl' => $this->option['notify_url']
         ];
 
         ksort($transdata);
@@ -93,7 +84,7 @@ class Samsung extends ProviderAbstract
         $signtype = 'RSA';
         //拼装成 {参数名":"数据" , 参数名":"数据" ....}&sign=xxxxxxx&signtype=RSA
         $post_data = urlencode(json_encode($transdata) . '&' . 'sign=' . $sign . '&' . 'signtype=' . $signtype);
-        
+
         //发送post请求
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -109,23 +100,36 @@ class Samsung extends ProviderAbstract
         $response = curl_exec($ch);
         curl_close($ch);
 
-        $response = urldecode($response);
         //transdata={"transid":"32011501141440430237"}&sign=NJ1qphncrBZX8nLjonKk2tDIKRKc7vHNej3e/jZaXV7Gn/m1IfJv4lNDmDzy88Vd5Ui1PGMGvfXzbv8zpuc1m1i7lMvelWLGsaGghoXi0Rk7eqCe6tpZmciqj1dCojZoi0/PnuL2Cpcb/aMmgpt8LVIuebYcaFVEmvngLIQXwvE=&signtype=RSA
-        $res_data = explode($response, '&');
+        //创建匿名函数
+        // array_map函数 将匿名函数 作用在数组中的每个值上,并返回带有新值的数组
+        $arr = array_map(create_function('$v', 'return explode("=", $v);'), explode('&', $response));
 
-        if (empty($res_data['sign'])){
-            throw  new  DefaultException('create order error');
+        foreach ($arr as $value) {
+            $resp[($value[0])] = urldecode($value[1]);
         }
 
-        $orderData = $res_data['0'];
+        //解析transdata
+        if (array_key_exists("transdata", $resp)) {
+            $respJson = json_decode($resp["transdata"], true);
+        }
 
-        $orderId = explode($orderData, '=');
+        if (array_key_exists("sign", $resp)) {
+            //校验签名
+            $pkey = $this->formatPubKey();
+            $result = $this->verify($respJson, $resp["sign"], $pkey);
+        }
+        else {
+            throw new DefaultException('order error');
+        }
 
-        $transid = json_decode($orderId, true);
+        if ($result != 0) {
+            throw new DefaultException('varify error');
+        }
 
         return [
-            'reference' => $transid['transid'],      // 发行商订单号
-            'raw'       => $res_data                 // 发行渠道返回的原始信息, 也可添加额外参数
+            'reference' => '',                 // 发行商订单号
+            'raw'       => $respJson                 // 发行渠道返回的原始信息, 也可添加额外参数
         ];
     }
 
@@ -137,7 +141,8 @@ class Samsung extends ProviderAbstract
      * 最后的签名，需要用base64编码
      * return Sign签名
      */
-    private function sign($data, $priKey) {
+    private function sign($data, $priKey)
+    {
         //转换为openssl密钥
         $res = openssl_get_privatekey($priKey);
 
@@ -153,7 +158,8 @@ class Samsung extends ProviderAbstract
     }
 
     //格式化私钥
-    private function formatPriKey(){
+    private function formatPriKey()
+    {
         $private_key = "-----BEGIN PRIVATE KEY-----\n" .
             chunk_split($this->option['private_key'], 64, "\n") .
             '-----END PRIVATE KEY-----';
@@ -161,10 +167,11 @@ class Samsung extends ProviderAbstract
     }
 
     //格式化公钥
-    private function formatPubKey(){
-        $private_key = "-----BEGIN PUBLIC KEY-----\n" .
-            chunk_split($this->option['public_key'], 64, "\n") .
-            '-----END PUBLIC KEY-----';
+    private function formatPubKey()
+    {
+        $private_key =  "-----BEGIN PUBLIC KEY-----\n" .
+                        chunk_split($this->option['public_key'], 64, "\n") .
+                        '-----END PUBLIC KEY-----';
         return $private_key;
     }
 
@@ -175,7 +182,9 @@ class Samsung extends ProviderAbstract
      * 验签用爱贝公钥，摘要算法为MD5
      * return 验签是否通过 bool值
      */
-    function verify($data, $sign, $pubKey)  {
+    private function verify($data, $sign, $pubKey)
+    {
+        $sign = str_replace(' ', '+', $sign);
         //转换为openssl格式密钥
         $res = openssl_get_publickey($pubKey);
 
@@ -187,6 +196,34 @@ class Samsung extends ProviderAbstract
 
         //返回资源是否成功
         return $result;
+    }
+
+    /**
+     * 解析response报文
+     * $content  收到的response报文
+     * $pkey     爱贝平台公钥，用于验签
+     * $respJson 返回解析后的json报文
+     * return    解析成功TRUE，失败FALSE
+     */
+    function parseResp($content, $pkey) {
+        $arr=array_map(create_function('$v', 'return explode("=", $v);'), explode('&', $content));
+        foreach($arr as $value) {
+            $resp[($value[0])] = urldecode($value[1]);
+        }
+
+        //解析transdata
+        if(array_key_exists("transdata", $resp)) {
+            $respJson = json_decode($resp["transdata"]);
+        }
+
+        //验证签名，失败应答报文没有sign，跳过验签
+        if(array_key_exists("sign", $resp)) {
+            //校验签名
+            $pkey = $this->formatPubKey($pkey);
+            return $this->verify($resp["transdata"], $resp["sign"], $pkey);
+        } else if(!array_key_exists("errmsg", $respJson)) {
+            throw new  DefaultException((array)$respJson);
+        }
     }
 
 }
