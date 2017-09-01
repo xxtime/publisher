@@ -107,7 +107,7 @@ class Kuaikan extends ProviderAbstract{
         $data['app_id'] = "$this->app_id";
         $data['wares_id'] = intval(substr($parameter['product_id'], -1));
         $data['out_order_id'] = $parameter['transaction'];
-        $data['open_uid'] = $parameter['raw']['data']['open_id'];
+        $data['open_uid'] = $parameter['raw']['custom'];
         $data['out_notify_url'] = $this->option['notify_url'];
 
         $sign = $this->productSign($data);
