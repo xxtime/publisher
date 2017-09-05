@@ -11,6 +11,13 @@ use Xt\Publisher\DefaultException;
 
 class  Baidu extends ProviderAbstract
 {
+    private $_uid;
+
+    private $_cpOrder;
+
+    private $_orderMoney;
+
+
     //百度登陆验证
     public function verifyToken($token = '', $option = [])
     {
@@ -44,7 +51,7 @@ class  Baidu extends ProviderAbstract
 
 
         // TODO: Implement verifyToken() method.
-        return array('uid' => $option['uid'], 'username' => '', 'original' => (array)$result);
+        return array('uid' => $option['uid'], 'username' => '', 'original' => (array)$content);
     }
 
     /**
@@ -62,12 +69,13 @@ class  Baidu extends ProviderAbstract
         if ($data['OrderStatus'] == 0) {
             throw new DefaultException('error order');
         }
+        
         //查询app_id是否匹配
         $app_id = $this->app_id;
         $secretKey = $this->option['secret_key'];
 
-        if ($app_id != $_REQUEST['AppID']) {
-            throw new DefaultException('error AppID');
+        if ($app_id != $_REQUEST['AppID'] && $this->_uid != $data['UID'] && $this->_cpOrder != $_REQUEST['CooperatorOrderSerial'] && $this->_orderMoney != intval($data['OrderMoeny'])) {
+            throw new DefaultException('91');
         }
 
         $sign = $_REQUEST['Sign'];
@@ -109,6 +117,18 @@ class  Baidu extends ProviderAbstract
         if (strtolower($sign) != strtolower($signature)) {
             throw new DefaultException('sign error');
         }
+    }
+
+    //由于百度需要验证金额和订单号 以及uid 故需特殊处理
+    public function tradeBuild($parameter){
+        //获取需要验证的信息
+        $this->_cpOrder = $parameter['transaction'];
+        $this->_orderMoney = $parameter['amount'];
+        $this->_uid = $parameter['uid'];
+        return [
+            'reference' => '',      // 发行商订单号
+            'raw'       => $parameter       // 发行渠道返回的原始信息, 也可添加额外参数
+        ];
     }
 
     public function success()
