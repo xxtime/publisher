@@ -47,7 +47,7 @@ class  Baidu extends ProviderAbstract
             throw new DefaultException($response);
         }
 
-        $content = base64_decode($result['Content']);
+        $content = json_decode(base64_decode($result['Content']), true);
 
 
         // TODO: Implement verifyToken() method.
@@ -74,7 +74,7 @@ class  Baidu extends ProviderAbstract
         $app_id = $this->app_id;
         $secretKey = $this->option['secret_key'];
 
-        if ($app_id != $_REQUEST['AppID'] && $this->_uid != $data['UID'] && $this->_cpOrder != $_REQUEST['CooperatorOrderSerial'] && $this->_orderMoney != intval($data['OrderMoeny'])) {
+        if ($app_id != $_REQUEST['AppID'] && $this->_uid != $data['UID'] && $this->_cpOrder != $_REQUEST['CooperatorOrderSerial'] && doubleval($this->_orderMoney) != $data['OrderMoeny']) {
             throw new DefaultException('91');
         }
 
@@ -124,7 +124,7 @@ class  Baidu extends ProviderAbstract
         //获取需要验证的信息
         $this->_cpOrder = $parameter['transaction'];
         $this->_orderMoney = $parameter['amount'];
-        $this->_uid = $parameter['uid'];
+        $this->_uid = $parameter['raw']['UID'];
         return [
             'reference' => '',      // 发行商订单号
             'raw'       => $parameter       // 发行渠道返回的原始信息, 也可添加额外参数
