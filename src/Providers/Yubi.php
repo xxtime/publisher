@@ -17,11 +17,11 @@ class Yubi extends ProviderAbstract
         $url = 'http://www.i7game.com/sdk.php/LoginNotify/login_verify';
 
         $param = [
-            'user_id' => $option['uid'],
+            'user_id' => $option['user_id'],
             'token'   => $token,
         ];
 
-        $response = $this->http_curl_post($url, json_encode($param));
+        $response = $this->http_curl_post($url, $param);
 
         $result = json_decode($response, true);
 
@@ -41,9 +41,10 @@ class Yubi extends ProviderAbstract
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_NOBODY, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         $curl_result = curl_exec($ch);
         curl_close($ch);

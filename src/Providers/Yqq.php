@@ -103,15 +103,15 @@ class Yqq extends ProviderAbstract
         $uri = '/v3/r/mpay/pay_m';
         $req = $_REQUEST;
         $data = array(
-            'openid'               => $req['openid'],
-            'openkey'                => $req['openkey'],
-            'pf'                   => $req['pf'],
-            'pfkey'              => $req['pfkey'],
-            'zoneid'                => $req['zoneid'],
-            'amt'                => $req['amount'],
-            'billno'                => $req['orderid'],
-            'appid'                => $this->app_id,
-            'ts'                => time(),
+            'openid'  => $req['openid'],
+            'openkey' => $req['openkey'],
+            'pf'      => $req['pf'],
+            'pfkey'   => $req['pfkey'],
+            'zoneid'  => $req['zoneid'],
+            'amt'     => $req['amount'],
+            'billno'  => $req['orderid'],
+            'appid'   => $this->app_id,
+            'ts'      => time(),
         );
 
         ksort($data);
@@ -122,13 +122,13 @@ class Yqq extends ProviderAbstract
         }
         $str2 = rawurlencode(trim($str1, '&'));
 
-        $str3 = 'GET&' . rawurlencode($uri).'&' . $str2;
+        $str3 = 'GET&' . rawurlencode($uri) . '&' . $str2;
 
         $appkey = $this->app_key . '&';
         $sig = $this->getSignature($str3, $appkey);
 
-        $url .=  '/mpay/pay_m?' . $str1 .'sig='. rawurlencode($sig);
-        $cookie = 'session_id='.rawurlencode('openid').';session_type='.rawurlencode('kp_actoken').';org_loc='.rawurlencode('/mpay/pay_m').';';
+        $url .= '/mpay/pay_m?' . $str1 . 'sig=' . rawurlencode($sig);
+        $cookie = 'session_id=' . rawurlencode('openid') . ';session_type=' . rawurlencode('kp_actoken') . ';org_loc=' . rawurlencode('/mpay/pay_m') . ';';
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_HEADER, 0);
@@ -139,13 +139,13 @@ class Yqq extends ProviderAbstract
 
         $result = json_decode($data, true);
 
-        if ($result['ret'] != 0 ) {
+        if ($result['ret'] != 0) {
             throw new DefaultException('sign error');
         }
 
         // 平台参数
         $param['amount'] = round($req['amount'] / 100, 2);                              // 总价.单位: 分
-        $param['transaction'] = $req['orderid'] ;                              // 订单id
+        $param['transaction'] = $req['orderid'];                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
         $param['reference'] = $req['orderid'];                           // 第三方订单ID
         $param['userId'] = '';                                   // 第三方账号ID
@@ -155,14 +155,16 @@ class Yqq extends ProviderAbstract
 
     public function success()
     {
-        exit(json_encode(array('code'=>0, 'msg'=>'success')));
+        exit(json_encode(array('code' => 0, 'msg' => 'success')));
     }
 
-    private function getSignature($str, $key) {
+    private function getSignature($str, $key)
+    {
         $signature = "";
         if (function_exists('hash_hmac')) {
             $signature = base64_encode(hash_hmac("sha1", $str, $key, true));
-        } else {
+        }
+        else {
             $blocksize = 64;
             $hashfunc = 'sha1';
             if (strlen($key) > $blocksize) {

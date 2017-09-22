@@ -9,7 +9,7 @@ namespace Xt\Publisher\Providers;
 
 use Xt\Publisher\DefaultException;
 
-class Yueyou extends ProviderAbstract
+class yueyou extends ProviderAbstract
 {
     public function verifyToken($token = '', $option = [])
     {
@@ -17,9 +17,9 @@ class Yueyou extends ProviderAbstract
 
         $time = time();
         $data = [
-            'appId'       => $this->app_id,
+            'AppID'     => $this->app_id,
             'timestamp' => $time,
-            'token'   => $token
+            'token'     => $token
         ];
 
         $str1 = '';
@@ -31,7 +31,7 @@ class Yueyou extends ProviderAbstract
 
         $param = http_build_query($data);
 
-        $url = $url .'?'. $param;
+        $url = $url . $param;
         $response = file_get_contents($url);
         $result = json_decode($response, true);
 
@@ -48,15 +48,15 @@ class Yueyou extends ProviderAbstract
         $req = $_REQUEST;
 
         $data = array(
-            'result' => $req['result'],
-            'amount'        => $req['amount'],
-            'channelId'   => $req['channelId'],
-            'appId'       => $req['appId'],
-            'appId'       => $req['appId'],
-            'orderId'       => $req['orderId'],
-            'cpOrderId'       => $req['cpOrderId'],
-            'userId'       => $req['userId'],
-            'timestamp'       => $req['timestamp'],
+            'result'    => $req['result'],
+            'amount'    => $req['amount'],
+            'channelId' => $req['channelId'],
+            'appId'     => $req['appId'],
+            'appId'     => $req['appId'],
+            'orderId'   => $req['orderId'],
+            'cpOrderId' => $req['cpOrderId'],
+            'userId'    => $req['userId'],
+            'timestamp' => $req['timestamp'],
             'ext'       => $req['ext'],
         );
         ksort($data);

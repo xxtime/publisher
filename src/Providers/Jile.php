@@ -9,13 +9,14 @@ namespace Xt\Publisher\Providers;
 
 use Xt\Publisher\DefaultException;
 
-class Jile extends ProviderAbstract{
+class Jile extends ProviderAbstract
+{
     public function verifyToken($token = '', $option = [])
     {
         $url = 'https://openapi.shediao.com/user/info';
 
         $param = [
-            'access_token'   => $token,
+            'access_token' => $token,
         ];
 
         $response = $this->http_curl_post($url, $param);
@@ -23,13 +24,13 @@ class Jile extends ProviderAbstract{
         $result = json_decode($response, true);
 
         //如果遇到错误 则抛出错误
-        if ($result['errno'] != 0) {
+        if ($result['status'] != 0) {
             throw new DefaultException($response);
         }
 
         return [
-            'uid'      => $result['data']['uid'],
-            'username' => '',
+            'uid'      => $result['username'],
+            'username' => $result['nickname'],
             'original' => $result
         ];
     }
@@ -56,11 +57,11 @@ class Jile extends ProviderAbstract{
         $sign = $req['sign'];
 
         $data = array(
-            'trade_no' => $req['trade_no'],
-            'appsecret'        => $this->app_key,
-            'total_fee'        => $req['total_fee'],
-            'fee_type'   => $req['fee_type'],
-            'app_id'       => $this->app_id,
+            'trade_no'  => $req['trade_no'],
+            'appsecret' => $this->app_key,
+            'total_fee' => $req['total_fee'],
+            'fee_type'  => $req['fee_type'],
+            'app_id'    => $req['app_id'],
         );
 
         $str1 = '';
@@ -74,7 +75,7 @@ class Jile extends ProviderAbstract{
         }
 
         // 平台参数
-        $param['amount'] = round($req['total_fee'] / 100, 2);                      // 总价.单位: 分
+        $param['amount'] = round($req['total_fee'] / 100, 2);                              // 总价.单位: 分
         $param['transaction'] = $req['cp_trade_no'];                              // 订单id
         $param['currency'] = 'CNY';                                                         // 货币类型
         $param['reference'] = $req['trade_no'];                           // 第三方订单ID
@@ -85,7 +86,7 @@ class Jile extends ProviderAbstract{
 
     public function success()
     {
-        $arr = array('errno'=>0 , 'errmsg' => '' , 'data' => array('status'=>0));
+        $arr = array('errno' => 0, 'errmsg' => '', 'data' => array('status' => 0));
         exit(json_encode($arr));
     }
 }
