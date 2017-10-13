@@ -24,13 +24,13 @@ class Jile extends ProviderAbstract
         $result = json_decode($response, true);
 
         //如果遇到错误 则抛出错误
-        if ($result['status'] != 0) {
+        if ($result['errno'] != 0) {
             throw new DefaultException($response);
         }
 
         return [
-            'uid'      => $result['username'],
-            'username' => $result['nickname'],
+            'uid'      => $result['data']['uid'],
+            'username' => $result['data']['nickname'],
             'original' => $result
         ];
     }
