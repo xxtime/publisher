@@ -13,11 +13,11 @@ class yueyou extends ProviderAbstract
 {
     public function verifyToken($token = '', $option = [])
     {
-        $url = 'http://rhsdk.yueeyou.com/api/cp/checkToken';
+        $url = 'http://rhsdk.yueeyou.com/api/cp/checkToken?';
 
         $time = time();
         $data = [
-            'AppID'     => $this->app_id,
+            'appId'     => $this->app_id,
             'timestamp' => $time,
             'token'     => $token
         ];
@@ -30,7 +30,6 @@ class yueyou extends ProviderAbstract
         $data['sign'] = md5($str1 . $this->app_key);
 
         $param = http_build_query($data);
-
         $url = $url . $param;
         $response = file_get_contents($url);
         $result = json_decode($response, true);
