@@ -51,7 +51,6 @@ class yueyou extends ProviderAbstract
             'amount'    => $req['amount'],
             'channelId' => $req['channelId'],
             'appId'     => $req['appId'],
-            'appId'     => $req['appId'],
             'orderId'   => $req['orderId'],
             'cpOrderId' => $req['cpOrderId'],
             'userId'    => $req['userId'],
