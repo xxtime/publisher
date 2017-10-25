@@ -106,9 +106,9 @@ class Yweixin extends ProviderAbstract
             'pf'      => $req['pf'],
             'pfkey'   => $req['pfkey'],
             'zoneid'  => $req['zoneid'],
-            'amt'     => $req['amount'],
+            'amt'     => round($req['amount'] / 100, 2),    //因客户端传过来的是单位为角，腾讯所需扣款为游戏币个数，所以除以10
             'billno'  => $req['orderid'],
-            'appid'   => $this->app_id,
+            'appid'   => $this->option['payapp_id'],
             'ts'      => time(),
         );
 
