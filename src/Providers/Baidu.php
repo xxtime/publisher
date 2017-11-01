@@ -85,7 +85,8 @@ class  Baidu extends ProviderAbstract
 
         //数组组装
         // 用户实际付款额=订单金额-优惠券金额, 为防止优惠券额度大于付款额度的处理待补充
-        $amount = ($data['OrderMoney'] > $data['VoucherMoney']) ? $data['OrderMoney'] - $data['VoucherMoney'] : $data['OrderMoney'];
+//        $amount = ($data['OrderMoney'] > $data['VoucherMoney']) ? $data['OrderMoney'] - $data['VoucherMoney'] : $data['OrderMoney'];
+        $amount = $data['OrderMoney'];
         $transactionReference = $_REQUEST['CooperatorOrderSerial'];
         $transactionId = $_REQUEST['OrderSerial'];
         $userId = $data['UID'];
