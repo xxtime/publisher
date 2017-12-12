@@ -109,4 +109,19 @@ class Publisher
         }
     }
 
+    /**
+     * 订单状态查询
+     * @param array $parameter
+     * @return mixed
+     * @throws \Xt\Publisher\DefaultException
+     */
+    public function query($parameter = [])
+    {
+        try {
+            return $this->provider->query($parameter);
+        } catch (DefaultException $e) {
+            throw $e;
+        }
+    }
+
 }

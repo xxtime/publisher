@@ -173,4 +173,19 @@ class Uc extends ProviderAbstract
             'raw'       => $data   // 发行渠道返回的原始信息, 也可添加额外参数
         ];
     }
+
+    public function query($parameter = [])
+    {
+        if ($parameter['status'] == 'paid' || $parameter['status'] == 'complete'){
+            $status = 'success';
+        }elseif ($parameter['status'] == 'pending'){
+            $status = 'cancel';
+        }else{
+            $status = 'failed';
+        }
+        return [
+            'transaction' => $parameter['transaction'],
+            'status' => $status
+        ];
+    }
 }
