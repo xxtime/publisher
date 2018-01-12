@@ -58,7 +58,7 @@ class Iqy extends ProviderAbstract
     public function success()
     {
         $data = [
-            'status'   => '0',
+            'result'   => '0',
             'message' => 'success'
         ];
 
