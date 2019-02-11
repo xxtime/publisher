@@ -18,7 +18,7 @@ class Quick extends ProviderAbstract {
         $this->option['product_code'] = trim($this->option['product_code'], '\'');
         $url = 'http://checkuser.sdk.quicksdk.net/v2/checkUserInfo?';
         $uid = $option['uid'];
-        $channel_id = $option['custom']['channel_id'];
+        $channel_id = $option['custom'];
         $product_code = $this->option['product_code'];
         $param = [
             'token' => $token,
