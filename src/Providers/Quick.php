@@ -14,11 +14,12 @@ class Quick extends ProviderAbstract {
     // 登录验证
     public function verifyToken($token = '', $option = [])
     {
+        $this->option['callBack_key'] = trim($this->option['callBack_key'], '\'');
+        $this->option['product_code'] = trim($this->option['product_code'], '\'');
         $url = 'http://checkuser.sdk.quicksdk.net/v2/checkUserInfo?';
         $uid = $option['uid'];
         $channel_id = $option['custom']['channel_id'];
         $product_code = $this->option['product_code'];
-
         $param = [
             'token' => $token,
             'product_code' => $product_code,
@@ -33,7 +34,7 @@ class Quick extends ProviderAbstract {
         $params = trim($params, '&');
 
         $result = file_get_contents($url.$params);  // 通过则 "1", 否则则 "0"
-        if (!$result) {
+        if ($result == "0") {
             throw  new  DefaultException($result);
         }
 
