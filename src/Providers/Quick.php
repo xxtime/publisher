@@ -26,12 +26,6 @@ class Quick extends ProviderAbstract {
             'uid' => $uid,
             'channel_code' => ''
         ];
-        $param = [
-            'token' => $token,
-            'product_code' => $product_code,
-            'uid' => $uid,
-            'channel_code' => ''
-        ];
 
         $param = http_build_query($param);
 
