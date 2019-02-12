@@ -26,14 +26,16 @@ class Quick extends ProviderAbstract {
             'uid' => $uid,
             'channel_code' => ''
         ];
+        $param = [
+            'token' => $token,
+            'product_code' => $product_code,
+            'uid' => $uid,
+            'channel_code' => ''
+        ];
 
-        $params = '';
-        foreach ($param as $value) {
-            $params .= '&' . $value;
-        }
-        $params = trim($params, '&');
+        $param = http_build_query($param);
 
-        $result = file_get_contents($url.$params);  // 通过则 "1", 否则则 "0"
+        $result = file_get_contents($url.$param);  // 通过则 "1", 否则则 "0"
         if ($result == "0") {
             throw  new  DefaultException($result);
         }
