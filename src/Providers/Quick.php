@@ -49,12 +49,14 @@ class Quick extends ProviderAbstract {
         $sign = $_REQUEST['sign'];
         $md5Sing = $_REQUEST['md5Sign'];
         $cB_key = trim($this->option['callBack_key'], '\'');
+        $md5_key = trim($this->option['md5_key'], '\'');
+
         // 解密
         $nt_data_de = $this->decode($nt_data, $cB_key);
         $param = $this->decodeXML($nt_data_de);
 
         // 验证签名
-        $this->check_sign($md5Sing, $nt_data, $sign, $cB_key);
+        $this->check_sign($md5Sing, $nt_data, $sign, $md5_key);
 
         return [
             'transaction' => $param['game_order'],
@@ -143,8 +145,8 @@ class Quick extends ProviderAbstract {
     /**
      * 计算游戏同步签名
      */
-    public static function getSign($nt_data, $sign,$callbackkey){
+    public static function getSign($nt_data, $sign,$md5_key){
 
-        return md5($nt_data.$sign.$callbackkey);
+        return md5($nt_data.$sign.$md5_key);
     }
 }
