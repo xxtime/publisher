@@ -88,9 +88,9 @@ class Quick extends ProviderAbstract {
     }
 
     // 检查签名
-    public function check_sign($sign = '', $nt_data, $quickSign, $cB_key)
+    public function check_sign($sign = '', $nt_data, $quickSign, $md5_key)
     {
-        $mdSign = $this->getSign($nt_data, $quickSign, $cB_key);
+        $mdSign = $this->getSign($nt_data, $quickSign, $md5_key);
         if ($sign != $mdSign) {
             throw new DefaultException('sign error');
         }
