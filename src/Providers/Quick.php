@@ -149,4 +149,11 @@ class Quick extends ProviderAbstract {
 
         return md5($nt_data.$sign.$md5_key);
     }
+
+    public function success()
+    {
+        exit('SUCCESS');
+    }
+
+
 }
