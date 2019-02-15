@@ -63,7 +63,6 @@ class Quick extends ProviderAbstract {
             'reference'   => $param['order_no'],
             'amount'      => $param['amount'],      // 金额 元
             'currency'    => 'CNY',
-            'userId'      => $param['channel_uid'],
             'channel_id'     => $param['channel']      // 充值渠道 ID
         ];
     }
@@ -71,18 +70,21 @@ class Quick extends ProviderAbstract {
     // XML解析
     public function decodeXML($xml) {
         $data = simplexml_load_string($xml);
+        $data = json_decode(json_encode($data), true);
+        $data = $data['message'];
+
         if ($data['status']) {  // 充值失败
             throw new DefaultException('Recharge Error');
         }
         // 要求客户端 extras_params 传递 server_id, user_id, role_id 参数，并且json_encode
-        $gameInfo = json_decode($data['extras_params'], true);
+        $gameInfo = $data['extras_params'];
         $param['amount'] = $data['amount']; // 成交金额单位 元
-        $param['partner_order_id'] = $data['order_no'];
-        $param['order_id'] = $data['game_order'];
-        $param['pay_way'] = $data['channel'];      // 此处是channelID, 并不是一个channel
-        $param['server_id'] = $gameInfo['server_id'];
-        $param['user_id'] = $gameInfo['user_id'];
-        $param['role_id'] = $gameInfo['role_id'];
+        $param['game_order'] = $data['game_order'];
+        $param['order_no'] = $data['order_no'];
+        $param['channel'] = $data['channel'];      // 此处是channelID, 并不是一个channel
+        //$param['server_id'] = $gameInfo['server_id'];
+        //$param['user_id'] = $gameInfo['user_id'];
+        //$param['role_id'] = $gameInfo['role_id'];
 
         return $param;
     }
