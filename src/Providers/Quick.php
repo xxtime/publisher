@@ -49,19 +49,20 @@ class Quick extends ProviderAbstract {
         $sign = $_REQUEST['sign'];
         $md5Sing = $_REQUEST['md5Sign'];
         $cB_key = trim($this->option['callBack_key'], '\'');
+        $md5_key = trim($this->option['md5_key'], '\'');
+
         // 解密
         $nt_data_de = $this->decode($nt_data, $cB_key);
         $param = $this->decodeXML($nt_data_de);
 
         // 验证签名
-        $this->check_sign($md5Sing, $nt_data, $sign, $cB_key);
+        $this->check_sign($md5Sing, $nt_data, $sign, $md5_key);
 
         return [
             'transaction' => $param['game_order'],
             'reference'   => $param['order_no'],
             'amount'      => $param['amount'],      // 金额 元
             'currency'    => 'CNY',
-            'userId'      => $param['channel_uid'],
             'channel_id'     => $param['channel']      // 充值渠道 ID
         ];
     }
@@ -69,26 +70,29 @@ class Quick extends ProviderAbstract {
     // XML解析
     public function decodeXML($xml) {
         $data = simplexml_load_string($xml);
+        $data = json_decode(json_encode($data), true);
+        $data = $data['message'];
+
         if ($data['status']) {  // 充值失败
             throw new DefaultException('Recharge Error');
         }
         // 要求客户端 extras_params 传递 server_id, user_id, role_id 参数，并且json_encode
-        $gameInfo = json_decode($data['extras_params'], true);
+        $gameInfo = $data['extras_params'];
         $param['amount'] = $data['amount']; // 成交金额单位 元
-        $param['partner_order_id'] = $data['order_no'];
-        $param['order_id'] = $data['game_order'];
-        $param['pay_way'] = $data['channel'];      // 此处是channelID, 并不是一个channel
-        $param['server_id'] = $gameInfo['server_id'];
-        $param['user_id'] = $gameInfo['user_id'];
-        $param['role_id'] = $gameInfo['role_id'];
+        $param['game_order'] = $data['game_order'];
+        $param['order_no'] = $data['order_no'];
+        $param['channel'] = $data['channel'];      // 此处是channelID, 并不是一个channel
+        //$param['server_id'] = $gameInfo['server_id'];
+        //$param['user_id'] = $gameInfo['user_id'];
+        //$param['role_id'] = $gameInfo['role_id'];
 
         return $param;
     }
 
     // 检查签名
-    public function check_sign($sign = '', $nt_data, $quickSign, $cB_key)
+    public function check_sign($sign = '', $nt_data, $quickSign, $md5_key)
     {
-        $mdSign = $this->getSign($nt_data, $quickSign, $cB_key);
+        $mdSign = $this->getSign($nt_data, $quickSign, $md5_key);
         if ($sign != $mdSign) {
             throw new DefaultException('sign error');
         }
@@ -143,8 +147,15 @@ class Quick extends ProviderAbstract {
     /**
      * 计算游戏同步签名
      */
-    public static function getSign($nt_data, $sign,$callbackkey){
+    public static function getSign($nt_data, $sign,$md5_key){
 
-        return md5($nt_data.$sign.$callbackkey);
+        return md5($nt_data.$sign.$md5_key);
     }
+
+    public function success()
+    {
+        exit('SUCCESS');
+    }
+
+
 }
