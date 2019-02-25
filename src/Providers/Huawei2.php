@@ -35,14 +35,36 @@ class Huawei2 extends ProviderAbstract
         // 签名验证
         $response = $this->call($params);
         $result = json_decode($response, true);
-        if ($result['rtnCode'] != 0) {
-            throw new DefaultException($response);
+
+        if (!$this->verify($result)) {
+            throw new DefaultException("verify failed!");
         }
+
         return [
             'uid'      => $option['uid'],
             'username' => '',
             'original' => $option
         ];
+    }
+
+    /**
+     * 验证渠道返回的签名是否正确
+     * @param $response
+     * @return bool
+     */
+    private function verify($response) {
+        if($response->rtnCode == 0) {
+            $rtnSign = base64_decode($response->rtnSign);
+            unset($response->rtnSign);
+            $fields = [];
+            foreach ($response as $key => $value) {
+                $fields[] = $key . "=" . rawurlencode($value);
+            }
+            usort($fields, "strcmp");
+            $sbs = implode("&", $fields);
+            return openssl_verify($sbs, $rtnSign, $this->option['public_key'], OPENSSL_ALGO_SHA256) == 1;
+        }
+        return true;
     }
 
     public function notify()
