@@ -15,7 +15,7 @@ class Oppo extends ProviderAbstract
     public function verifyToken($token = '', $option = [])
     {
         $token = str_replace(' ', '+', $token);
-        $url = 'http://i.open.game.oppomobile.com/gameopen/user/fileIdInfo';
+        $url = 'https://iopen.game.oppomobile.com/sdkopen/user/fileIdInfo';
         $request_serverUrl = $url . "?fileId=" . urlencode($option['uid']) . "&token=" . urlencode($token);
         $time = microtime(true);
         $dataParams['oauthConsumerKey'] = $this->app_key;
