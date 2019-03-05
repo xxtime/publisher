@@ -28,10 +28,11 @@ class Huawei2 extends ProviderAbstract
         $params['playerLevel'] = $playerInfo[0];
         $params['ts'] = $playerInfo[1];
         $params['playerSSign'] = $token;
-
+        $private_key = "-----BEGIN PRIVATE KEY-----\n" .
+            chunk_split($this->option['private_key'], 64, "\n") .
+            '-----END PRIVATE KEY-----';
         // 生成cp端签名
-        $params['cpSign'] = $this->sign($params, $this->option['private_key']);
-
+        $params['cpSign'] = $this->sign($params, $private_key);
         // 签名验证
         $response = $this->call($params);
         $result = json_decode($response, true);
@@ -76,8 +77,6 @@ class Huawei2 extends ProviderAbstract
             $query .= $key . '='. rawurldecode($value) . '&';
         }
         $query = trim($query, '&');
-
-        $signature  = "";
         openssl_sign($query, $signature, $privateKey, OPENSSL_ALGO_SHA256);
         return base64_encode($signature);
     }
