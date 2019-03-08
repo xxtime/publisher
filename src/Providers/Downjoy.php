@@ -57,8 +57,7 @@ class downjoy extends ProviderAbstract
         $param['roleId'] = $parameter['raw']['role_id'];    // 需要客户端先json再base64加密后传递过来
         $param['umid'] = $parameter['raw']['umid'];     // 文档中规定需要跟聚role_id查询，此处无法查询只能通过客户端传递
         $param['paymentKey'] = $this->option['payment_key'];
-        dump(implode("|", $param));
-        exit;
+
         $param['cpSign'] = md5(implode("|", $param));
 
         unset($param['paymentKey']);
