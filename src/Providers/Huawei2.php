@@ -47,6 +47,40 @@ class Huawei2 extends ProviderAbstract
         ];
     }
 
+
+    public function tradeBuild($parameter = [])
+    {
+        $data['merchantId'] = $this->option['cp_id'];
+        $data['applicationID'] = $this->app_id;
+        $data['amount'] = $parameter['amount'];
+        $data['productName'] = $parameter['product_name'];
+        $data['requestId'] = $parameter['transaction'];
+        $data['productDesc'] = $parameter['product_name'];
+        $data['country'] = "CN";
+        $data['currency'] = "CNY";
+        $data['sdkChannel'] = 1;
+        $data['urlVer '] = "2";
+        ksort($data);
+        $str = '';
+        foreach ($data as $k => $v) {
+            $str .= "$k=$v&";
+        }
+        $str = trim($str, '&');
+
+        // 生成签名
+        $sign = $this->rsa_sign($str);
+
+        $data['userName'] = $this->option['cp_id'];
+        $data['sign'] = $sign;
+        $data['serviceCatalog'] = 'X6';
+        $data['merchantName'] = "深圳市乐创天下科技有限公司";
+
+        return [
+            'reference' => '',      // 发行商订单号
+            'raw'       => $data       // 发行渠道返回的原始信息, 也可添加额外参数
+        ];
+    }
+
     /**
      * 验证渠道返回的签名是否正确
      * @param $response
@@ -108,6 +142,18 @@ class Huawei2 extends ProviderAbstract
         $query = trim($query, '&');
         openssl_sign($query, $signature, $privateKey, OPENSSL_ALGO_SHA256);
         return base64_encode($signature);
+    }
+
+    private function rsa_sign($str)
+    {
+        $private_key = "-----BEGIN PRIVATE KEY-----\n" .
+            chunk_split($this->option['private_key'], 64, "\n") .
+            '-----END PRIVATE KEY-----';
+        $private_key_id = openssl_pkey_get_private($private_key);
+        $signature = false;
+        openssl_sign($str, $signature, $private_key_id,OPENSSL_ALGO_SHA1);
+        $sign = base64_encode($signature);
+        return $sign;
     }
 
     /**
