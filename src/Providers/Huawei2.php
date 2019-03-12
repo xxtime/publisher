@@ -27,16 +27,15 @@ class Huawei2 extends ProviderAbstract
         $params['playerId'] = $option['uid'];
         $params['playerLevel'] = $playerInfo[0];
         $params['ts'] = $playerInfo[1];
-        $params['playerSSign'] = $token;
+        $params['playerSSign'] = str_replace(' ', '+',$token);
         $private_key = "-----BEGIN PRIVATE KEY-----\n" .
-            chunk_split($this->option['private_key'], 64, "\n") .
+            chunk_split($this->option['game_private_key'], 64, "\n") .
             '-----END PRIVATE KEY-----';
         // 生成cp端签名
         $params['cpSign'] = $this->sign($params, $private_key);
         // 签名验证
         $response = $this->call($params);
         $result = json_decode($response, true);
-
         if (!$this->verify($result)) {
             throw new DefaultException("verify failed!");
         }
@@ -54,19 +53,23 @@ class Huawei2 extends ProviderAbstract
      * @return bool
      */
     private function verify($response) {
-        if($response->rtnCode == 0) {
-            $rtnSign = base64_decode($response->rtnSign);
-            unset($response->rtnSign);
+        if($response['rtnCode'] == 0) {
+            ksort($response);
+            $rtnSign =  base64_decode($response['rtnSign']);
+            unset($response['rtnSign']);
             $fields = [];
             foreach ($response as $key => $value) {
-                $fields[] = $key . "=" . rawurlencode($value);
+                $fields[] = $key . "=" . urlencode($value);
             }
-            usort($fields, "strcmp");
             $sbs = implode("&", $fields);
-            return openssl_verify($sbs, $rtnSign, $this->option['public_key'], OPENSSL_ALGO_SHA256) == 1;
+            $public_key = "-----BEGIN PUBLIC KEY-----\n" .
+                chunk_split($this->option['game_public_key'], 64, "\n") .
+                '-----END PUBLIC KEY-----';
+            return openssl_verify($sbs, $rtnSign, $public_key, OPENSSL_ALGO_SHA256) == 1;
         }
-        return true;
+        return false;
     }
+
 
     public function notify()
     {
@@ -78,6 +81,10 @@ class Huawei2 extends ProviderAbstract
         }
 
         parse_str($oriContent, $data);
+
+        if ($data['result'] != 0) {
+            throw new DefaultException('fail');
+        }
 
         $params['amount'] = round($data['amount'], 2);
         $params['transaction'] = $data['requestId'];
@@ -128,6 +135,7 @@ class Huawei2 extends ProviderAbstract
     public function checkSign($sign = '', $reqs){
         $data = $reqs;
         unset($data['sign']);
+        unset($data['payType']);
         ksort($data);
 
         $public_key = "-----BEGIN PUBLIC KEY-----\n" .
