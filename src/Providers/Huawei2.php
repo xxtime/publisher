@@ -137,7 +137,7 @@ class Huawei2 extends ProviderAbstract
         ksort($params);
         $query = '';
         foreach ($params as $key => $value) {
-            $query .= $key . '='. rawurldecode($value) . '&';
+            $query .= $key . '='. rawurlencode($value) . '&';
         }
         $query = trim($query, '&');
         openssl_sign($query, $signature, $privateKey, OPENSSL_ALGO_SHA256);
