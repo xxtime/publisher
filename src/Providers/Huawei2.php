@@ -58,15 +58,14 @@ class Huawei2 extends ProviderAbstract
         $data['productDesc'] = $parameter['product_name'];
         $data['country'] = "CN";
         $data['currency'] = "CNY";
-        $data['sdkChannel'] = 1;
-        $data['urlVer '] = "2";
+        $data['sdkChannel'] = "1";
+        $data['urlver'] = "2";
         ksort($data);
         $str = '';
         foreach ($data as $k => $v) {
             $str .= "$k=$v&";
         }
         $str = trim($str, '&');
-
         // 生成签名
         $sign = $this->rsa_sign($str);
 
@@ -74,7 +73,7 @@ class Huawei2 extends ProviderAbstract
         $data['sign'] = $sign;
         $data['serviceCatalog'] = 'X6';
         $data['merchantName'] = "深圳市乐创天下科技有限公司";
-
+	$data['urlVer'] = "2";
         return [
             'reference' => '',      // 发行商订单号
             'raw'       => $data       // 发行渠道返回的原始信息, 也可添加额外参数
