@@ -151,7 +151,7 @@ class Huawei2 extends ProviderAbstract
             '-----END PRIVATE KEY-----';
         $private_key_id = openssl_pkey_get_private($private_key);
         $signature = false;
-        openssl_sign($str, $signature, $private_key_id,OPENSSL_ALGO_SHA1);
+        openssl_sign($str, $signature, $private_key_id,OPENSSL_ALGO_SHA256);
         $sign = base64_encode($signature);
         return $sign;
     }
@@ -181,7 +181,7 @@ class Huawei2 extends ProviderAbstract
     public function checkSign($sign = '', $reqs){
         $data = $reqs;
         unset($data['sign']);
-        unset($data['payType']);
+        unset($data['signType']);
         ksort($data);
 
         $public_key = "-----BEGIN PUBLIC KEY-----\n" .
@@ -196,9 +196,14 @@ class Huawei2 extends ProviderAbstract
         $httpStr = rtrim($httpStr, '&');
         $sign = str_replace(' ', '+', $sign);
         $signature = base64_decode($sign);
-
-        if (!openssl_verify($httpStr, $signature, $pubKeyId, OPENSSL_ALGO_SHA1)) {
+        if (!openssl_verify($httpStr, $signature, $pubKeyId, OPENSSL_ALGO_SHA256)) {
             throw new DefaultException('sign error');
         }
+    }
+
+    public function success()
+    {
+        echo json_encode(array('result' => 0));
+        exit;
     }
 }
