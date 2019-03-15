@@ -72,9 +72,33 @@ class Qihu360 extends ProviderAbstract
         ];
     }
 
-    private function check_sign($data, $sign)
+    public function tradeBuild($parameter = [])
     {
-        //按照
+        $data['app_key'] = $this->option['app_key'];
+        $data['product_id'] = $parameter['product_id'];
+        $data['product_name'] = $parameter['product_name'];
+        $data['amount'] = intval($parameter['amount']*100);
+        $data['app_uid'] = $parameter['raw']['uid'];  //应用分配给用户的id
+        $data['app_uname'] = $parameter['raw']['username']; //应用内的用户名
+        $data['user_id'] = $parameter['raw']['uid']; //360帐号id
+        $data['sign_type'] = "md5";
+        $data['app_order_id'] = $parameter['transaction'];
+        $data['sign'] = $this->sign($data);
+        $url = "https://mgame.360.cn/srvorder/get_token.json?";
+        $args = http_build_query($data);
+        $response = file_get_contents($url.$args);
+        $result = json_decode($response, true);
+        if (isset($result['error_code'])) {
+            throw new DefaultException($result['error']);
+        }
+        return [
+            'reference' => "",
+            'raw'       => $result
+        ];
+    }
+
+    private function sign($data)
+    {
         foreach ($data as $k => $v) {
             if (empty($v)) {
                 unset($data[$k]);
@@ -84,6 +108,13 @@ class Qihu360 extends ProviderAbstract
         $sign_str = implode("#", $data);
         $secretkey = $this->option['secret_key'];
         $sign_str = $sign_str . '#' . $secretkey;
+        return $sign_str;
+    }
+
+    private function check_sign($data, $sign)
+    {
+        //按照
+        $sign_str = $this->sign($data);
         if (strtolower($sign) != strtolower(md5($sign_str))) {
             throw new DefaultException('sign error');
         }
