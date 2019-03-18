@@ -85,7 +85,7 @@ class shuguo extends ProviderAbstract
         unset($data['sign']);
         ksort($data);
         $signStr = http_build_query($data);
-        $signStr."&".$this->option['AppSecret'];
+        $signStr = $signStr."&".$this->option['AppSecret'];
         if(!$data['sign'] || $data['sign'] != md5($signStr))
         {
             throw new DefaultException('sign error');
