@@ -34,7 +34,7 @@ class shuguo extends ProviderAbstract
         if ($result['state'] == 1) {
             return [
                 'uid'      => $option['uid'],
-                'username' => $option['username'],
+                'username' => '',
                 'original' => (array)$result
             ];
         }
