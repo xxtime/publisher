@@ -54,6 +54,7 @@ class shuguo extends ProviderAbstract
     public function notify()
     {
         $oriContent = file_get_contents('php://input');
+//	file_put_contents("shuguo.txt",$oriContent,FILE_APPEND);
         if (!isset($oriContent)){
             throw new DefaultException('fail');
         }
@@ -80,13 +81,14 @@ class shuguo extends ProviderAbstract
         {
             throw new DefaultException('state error');
         }
+	    $sign = $data['sign'];
         unset($data['cpOrderID']);
         unset($data['signType']);
         unset($data['sign']);
         ksort($data);
         $signStr = http_build_query($data);
         $signStr = $signStr."&".$this->option['AppSecret'];
-        if(!$data['sign'] || $data['sign'] != md5($signStr))
+	    if(!$sign || $sign!= md5($signStr))
         {
             throw new DefaultException('sign error');
         }

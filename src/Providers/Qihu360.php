@@ -74,16 +74,17 @@ class Qihu360 extends ProviderAbstract
 
     public function tradeBuild($parameter = [])
     {
+	//print_r($parameter);exit;
         $data['app_key'] = $this->option['app_key'];
         $data['product_id'] = $parameter['product_id'];
-        $data['product_name'] = $parameter['product_name'];
+        $data['product_name'] = $parameter['product_name'];// iconv("UTF-8//IGNORE","GB2312", $parameter['product_name']);//$parameter['product_name'];
         $data['amount'] = intval($parameter['amount']*100);
-        $data['app_uid'] = $parameter['raw']['uid'];  //应用分配给用户的id
-        $data['app_uname'] = $parameter['raw']['username']; //应用内的用户名
-        $data['user_id'] = $parameter['raw']['uid']; //360帐号id
+        $data['app_uid'] = $parameter['raw']['app_uid'];  //应用分配给用户的id
+        $data['app_uname'] = $parameter['raw']['app_uname']; //iconv("UTF-8//IGNORE","GB2312",$parameter['raw']['app_uname']);//$parameter['raw']['app_uname']; //应用内的用户名
+        $data['user_id'] = $parameter['raw']['user_id']; //360帐号id
         $data['sign_type'] = "md5";
         $data['app_order_id'] = $parameter['transaction'];
-        $data['sign'] = $this->sign($data);
+        $data['sign'] = md5($this->sign($data));
         $url = "https://mgame.360.cn/srvorder/get_token.json?";
         $args = http_build_query($data);
         $response = file_get_contents($url.$args);
