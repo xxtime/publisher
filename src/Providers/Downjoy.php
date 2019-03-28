@@ -47,6 +47,28 @@ class downjoy extends ProviderAbstract
     }
 
     /**
+     * 创建订单
+     */
+    public function tradeBuild($parameter = [])
+    {
+        $param['cpOrder'] = $parameter['transaction'];
+        $param['ext'] = isset($parameter['raw']['ext']) ? $parameter['raw']['ext'] : '';
+        $param['money'] = $parameter['amount'];
+        $param['roleId'] = $parameter['raw']['role_id'];    // 需要客户端先json再base64加密后传递过来
+        $param['umid'] = $parameter['raw']['umid'];     // 文档中规定需要跟聚role_id查询，此处无法查询只能通过客户端传递
+        $param['paymentKey'] = $this->option['payment_key'];
+
+        $param['cpSign'] = md5(implode("|", $param));
+
+        unset($param['paymentKey']);
+
+        return [
+            'reference' => '',      // 发行商订单号
+            'raw'       => $param       // 发行渠道返回的原始信息, 也可添加额外参数
+        ];
+    }
+
+    /**
      *  return [
      * 'transactionId'        => '20170526024456001467000368', // 平台订单ID;   重要参数  网站的订单ID
      * 'transactionReference' => '1234567890',                 // 发行商订单ID; 必选参数  渠道订单ID

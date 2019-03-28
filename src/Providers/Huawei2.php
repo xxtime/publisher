@@ -27,16 +27,15 @@ class Huawei2 extends ProviderAbstract
         $params['playerId'] = $option['uid'];
         $params['playerLevel'] = $playerInfo[0];
         $params['ts'] = $playerInfo[1];
-        $params['playerSSign'] = $token;
+        $params['playerSSign'] = str_replace(' ', '+',$token);
         $private_key = "-----BEGIN PRIVATE KEY-----\n" .
-            chunk_split($this->option['private_key'], 64, "\n") .
+            chunk_split($this->option['game_private_key'], 64, "\n") .
             '-----END PRIVATE KEY-----';
         // 生成cp端签名
         $params['cpSign'] = $this->sign($params, $private_key);
         // 签名验证
         $response = $this->call($params);
         $result = json_decode($response, true);
-
         if (!$this->verify($result)) {
             throw new DefaultException("verify failed!");
         }
@@ -48,25 +47,62 @@ class Huawei2 extends ProviderAbstract
         ];
     }
 
+
+    public function tradeBuild($parameter = [])
+    {
+        $data['merchantId'] = $this->option['cp_id'];
+        $data['applicationID'] = $this->app_id;
+        $data['amount'] = $parameter['amount'];
+        $data['productName'] = $parameter['product_name'];
+        $data['requestId'] = $parameter['transaction'];
+        $data['productDesc'] = $parameter['product_name'];
+        $data['country'] = "CN";
+        $data['currency'] = "CNY";
+        $data['sdkChannel'] = "1";
+        $data['urlver'] = "2";
+        ksort($data);
+        $str = '';
+        foreach ($data as $k => $v) {
+            $str .= "$k=$v&";
+        }
+        $str = trim($str, '&');
+        // 生成签名
+        $sign = $this->rsa_sign($str);
+
+        $data['userName'] = $this->option['cp_id'];
+        $data['sign'] = $sign;
+        $data['serviceCatalog'] = 'X6';
+        $data['merchantName'] = "深圳市乐创天下科技有限公司";
+	$data['urlVer'] = "2";
+        return [
+            'reference' => '',      // 发行商订单号
+            'raw'       => $data       // 发行渠道返回的原始信息, 也可添加额外参数
+        ];
+    }
+
     /**
      * 验证渠道返回的签名是否正确
      * @param $response
      * @return bool
      */
     private function verify($response) {
-        if($response->rtnCode == 0) {
-            $rtnSign = base64_decode($response->rtnSign);
-            unset($response->rtnSign);
+        if($response['rtnCode'] == 0) {
+            ksort($response);
+            $rtnSign =  base64_decode($response['rtnSign']);
+            unset($response['rtnSign']);
             $fields = [];
             foreach ($response as $key => $value) {
-                $fields[] = $key . "=" . rawurlencode($value);
+                $fields[] = $key . "=" . urlencode($value);
             }
-            usort($fields, "strcmp");
             $sbs = implode("&", $fields);
-            return openssl_verify($sbs, $rtnSign, $this->option['public_key'], OPENSSL_ALGO_SHA256) == 1;
+            $public_key = "-----BEGIN PUBLIC KEY-----\n" .
+                chunk_split($this->option['game_public_key'], 64, "\n") .
+                '-----END PUBLIC KEY-----';
+            return openssl_verify($sbs, $rtnSign, $public_key, OPENSSL_ALGO_SHA256) == 1;
         }
-        return true;
+        return false;
     }
+
 
     public function notify()
     {
@@ -78,6 +114,10 @@ class Huawei2 extends ProviderAbstract
         }
 
         parse_str($oriContent, $data);
+
+        if ($data['result'] != 0) {
+            throw new DefaultException('fail');
+        }
 
         $params['amount'] = round($data['amount'], 2);
         $params['transaction'] = $data['requestId'];
@@ -96,11 +136,23 @@ class Huawei2 extends ProviderAbstract
         ksort($params);
         $query = '';
         foreach ($params as $key => $value) {
-            $query .= $key . '='. rawurldecode($value) . '&';
+            $query .= $key . '='. rawurlencode($value) . '&';
         }
         $query = trim($query, '&');
         openssl_sign($query, $signature, $privateKey, OPENSSL_ALGO_SHA256);
         return base64_encode($signature);
+    }
+
+    private function rsa_sign($str)
+    {
+        $private_key = "-----BEGIN PRIVATE KEY-----\n" .
+            chunk_split($this->option['private_key'], 64, "\n") .
+            '-----END PRIVATE KEY-----';
+        $private_key_id = openssl_pkey_get_private($private_key);
+        $signature = false;
+        openssl_sign($str, $signature, $private_key_id,OPENSSL_ALGO_SHA256);
+        $sign = base64_encode($signature);
+        return $sign;
     }
 
     /**
@@ -128,6 +180,7 @@ class Huawei2 extends ProviderAbstract
     public function checkSign($sign = '', $reqs){
         $data = $reqs;
         unset($data['sign']);
+        unset($data['signType']);
         ksort($data);
 
         $public_key = "-----BEGIN PUBLIC KEY-----\n" .
@@ -142,9 +195,14 @@ class Huawei2 extends ProviderAbstract
         $httpStr = rtrim($httpStr, '&');
         $sign = str_replace(' ', '+', $sign);
         $signature = base64_decode($sign);
-
-        if (!openssl_verify($httpStr, $signature, $pubKeyId, OPENSSL_ALGO_SHA1)) {
+        if (!openssl_verify($httpStr, $signature, $pubKeyId, OPENSSL_ALGO_SHA256)) {
             throw new DefaultException('sign error');
         }
+    }
+
+    public function success()
+    {
+        echo json_encode(array('result' => 0));
+        exit;
     }
 }
