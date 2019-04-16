@@ -36,9 +36,57 @@ class Nubia extends ProviderAbstract
         ];
     }
 
+    // 创建订单
+    public function tradeBuild($parameter = [])
+    {
+        $data['app_id'] = $this->app_id;
+        $data['uid'] = $parameter['raw']['uid'];
+        //$data['game_id'] = $parameter['raw']['game_id'];  // 不加签名可以不传递
+        $data['cp_order_id'] = $parameter['transaction'];
+        $data['amount'] = $parameter['amount'];
+        $data['product_name'] = $parameter['product_name'];
+        $data['product_des'] = $parameter['product_des'];
+        $data['number'] = $parameter['raw']['number'];
+        $data['data_timestamp'] = time();
+        $data['sign'] = $this->Sign($data, $this->app_id, $this->option['secrect_key']);
+
+        return [
+            'reference' => '',
+            'raw' => $data,
+        ];
+    }
+
+
     public function notify()
     {
-        // TODO: Implement notify() method.
+        $resquest = $_REQUEST;
+        if ($_REQUEST['pay_suceess'] != 1) {
+            throw new DefaultException('pay error');
+        }
+
+        $data = [
+            'order_no' => $resquest['order_no'],
+            'data_timestamp' => $resquest['data_timestamp'],
+            'pay_success' => $resquest['pay_success'],
+            'app_id' => $resquest['app_id'],
+            'uid' => $resquest['uid'],
+            'amount' => $resquest['amount'],
+            'product_name' => $resquest['product_name'],
+            'prodcut_des' => $resquest['prodcut_des'],
+            'number' => $resquest['number']
+        ];
+
+        if ($this->Sign($data, $this->app_id, $this->option['secrect_key']) != $resquest['sign']) {
+            throw  new DefaultException('sign error');
+        }
+
+        return [
+            'transaction' => $resquest['order_no'],
+            'reference' => $_REQUEST['order_serial'],
+            'amount' => $_REQUEST['amount'],          //平台是以元为单位
+            'currency' => 'CNY',
+            'userId' => $_REQUEST['uid']
+        ];
     }
 
     private function http_curl_post($url, $data, $extend = array())
@@ -63,11 +111,12 @@ class Nubia extends ProviderAbstract
      * @param $app_secret
      * @return string
      */
-    public function Sign($data, $app_id, $app_secret) {
+    public function Sign($data, $app_id, $app_secret)
+    {
         ksort($data);
         $result = '';
         foreach ($data as $key => $value) {
-            $result .= $key.'&'.$value;
+            $result .= $key . '&' . $value;
         }
         $result .= ':' . $app_id . ':' . $app_secret;
 
