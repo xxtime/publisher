@@ -70,11 +70,11 @@ class  Wanwu extends ProviderAbstract
         $params['currency'] = 'CNY';
         $params['reference'] = $data['orderID'];
         $params['userId'] = '';
-        $this->check_sign_rsa($data,$state);
+        $this->check_sign($data,$state);
         return $params;
     }
 
-    public function check_sign_rsa($data ,$state)
+    public function check_sign($data ,$state)
     {
         if($state!=1)
         {
@@ -82,13 +82,26 @@ class  Wanwu extends ProviderAbstract
         }
         $sign = $data['sign'];
         $sign = str_replace(' ', '+', $sign);
+        $signType = $data['signType'];
         unset($data['signType']);
         unset($data['sign']);
         ksort($data);
         $signStr = http_build_query($data);
-        if ($this->verify_sign($signStr, $sign) != 1) {
-            throw new DefaultException('sign error');
+
+        if($signType == "rsa")
+        {
+            if ($this->verify_sign($signStr, $sign) != 1) {
+                throw new DefaultException('sign error');
+            }
+        }else
+        {
+            $signStr = $signStr."&".$this->option['secret_key'];
+            if(!$sign || $sign!= md5($signStr))
+            {
+                throw new DefaultException('sign error');
+            }
         }
+
     }
     private function verify_sign($data, $sign)
     {
@@ -104,24 +117,6 @@ class  Wanwu extends ProviderAbstract
     public function success()
     {
         exit('SUCCESS');
-    }
-
-    private function check_sign($data,$state)
-    {
-        if($state!=1)
-        {
-            throw new DefaultException('state error');
-        }
-        $sign = $data['sign'];
-        unset($data['signType']);
-        unset($data['sign']);
-        ksort($data);
-        $signStr = http_build_query($data);
-        $signStr = $signStr."&".$this->option['AppSecret'];
-        if(!$sign || $sign!= md5($signStr))
-        {
-            throw new DefaultException('sign error');
-        }
     }
 
     private function http_curl_post($url, $data, $extend = array())
