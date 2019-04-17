@@ -15,7 +15,7 @@ class  Wanwu extends ProviderAbstract
     //登陆验证
     public function verifyToken($token = '', $option = [])
     {
-        $url = 'http://www.9152ww.com:8080/user/verifyAccount?';
+        $url = 'http://www.9152ww.com:8080/u8server/user/verifyAccount?';
 
         $data = [
             'userID' => $option['uid'], //第三方账号ID
