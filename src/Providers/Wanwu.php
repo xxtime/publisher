@@ -58,10 +58,12 @@ class  Wanwu extends ProviderAbstract
     public function notify()
     {
         $oriContent = file_get_contents('php://input');
-	file_put_contents("wanwu.txt",$oriContent,FILE_APPEND);
+        file_put_contents("wanwu.txt",$oriContent,FILE_APPEND);
         if (!isset($oriContent)){
             throw new DefaultException('fail');
         }
+        $oriContent = '{"data":{"gameID":4,"extension":"20190422100858079272029876","productID":"purchase.sansheng.and.6","money":600,"orderID":"1814002965300641792","sign":"MWgmEgelcAW35GFtjjH0L7Q2E/rpxkXCxZLFjThL/b4S5WVR+2xGIqiDUXYuOpuQqBLE6vmISs4uiwPYGtnL7YFnaY5MFTTgU7CyWgvj+Wi42vX1pz3FW+b8cocDrQZkw5g4WtxyNrBqGRmm9qhglvZxZnsDw8EdW6OurRZcbFs=","signType":"rsa","currency":"RMB","userID":9943,"serverID":"1","channelID":1706},"state":1}';
+
         $result = json_decode($oriContent,true);
         $data = $result['data'];
         $state = $result['state'];
@@ -87,7 +89,6 @@ class  Wanwu extends ProviderAbstract
         unset($data['sign']);
         ksort($data);
         $signStr = http_build_query($data);
-
         if($signType == "rsa")
         {
             if ($this->verify_sign($signStr, $sign) != 1) {
@@ -106,12 +107,12 @@ class  Wanwu extends ProviderAbstract
     private function verify_sign($data, $sign)
     {
         $publickey = $this->option['public_key'];
-        $sign = base64_decode($sign);
         $pem = chunk_split($publickey, 64, "\n");
         $pem = "-----BEGIN PUBLIC KEY-----\n" . $pem . "-----END PUBLIC KEY-----\n";
         $public_key_id = openssl_pkey_get_public($pem);
         $signature = base64_decode($sign);
-        return openssl_verify($data, $signature, $public_key_id);                     //成功返回1,0失败，-1错误,其他看手册
+        $data .= "&".$this->option['appSecret'];
+        return openssl_verify($data, $signature, $public_key_id);                    //成功返回1,0失败，-1错误,其他看手册
     }
 
     public function success()
