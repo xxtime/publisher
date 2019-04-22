@@ -66,7 +66,7 @@ class  Wanwu extends ProviderAbstract
         $result = json_decode($oriContent,true);
         $data = $result['data'];
         $state = $result['state'];
-        $params['amount'] = round($data['money'], 2);
+        $params['amount'] = round($data['money']/100, 2);
         $params['transaction'] = $data['extension'];
         $params['currency'] = 'CNY';
         $params['reference'] = $data['orderID'];
