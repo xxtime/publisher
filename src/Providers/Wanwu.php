@@ -62,7 +62,6 @@ class  Wanwu extends ProviderAbstract
         if (!isset($oriContent)){
             throw new DefaultException('fail');
         }
-        $oriContent = '{"data":{"gameID":4,"extension":"20190422100858079272029876","productID":"purchase.sansheng.and.6","money":600,"orderID":"1814002965300641792","sign":"MWgmEgelcAW35GFtjjH0L7Q2E/rpxkXCxZLFjThL/b4S5WVR+2xGIqiDUXYuOpuQqBLE6vmISs4uiwPYGtnL7YFnaY5MFTTgU7CyWgvj+Wi42vX1pz3FW+b8cocDrQZkw5g4WtxyNrBqGRmm9qhglvZxZnsDw8EdW6OurRZcbFs=","signType":"rsa","currency":"RMB","userID":9943,"serverID":"1","channelID":1706},"state":1}';
 
         $result = json_decode($oriContent,true);
         $data = $result['data'];
