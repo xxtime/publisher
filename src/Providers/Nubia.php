@@ -116,10 +116,12 @@ class Nubia extends ProviderAbstract
      */
     public function Sign($data, $app_id, $app_secret)
     {
+        $result = '';
         ksort($data);
-        $result = http_build_query($data);
+        foreach ($data as $key => $value) {
+            $result .= '&'. $key . '=' . urldecode($value);
+        }
         $result .= ':' . $app_id . ':' . $app_secret;
-
-        return md5($result);
+        return md5(trim($result, '&'));
     }
 }
