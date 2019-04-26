@@ -47,9 +47,8 @@ class Nubia extends ProviderAbstract
         $data['product_name'] = $parameter['product_name'];
         $data['product_des'] = $parameter['product_des'];
         $data['number'] = $parameter['raw']['number'];
-        $data['data_timestamp'] = time();
+        $data['data_timestamp'] = strval(time());
         $data['cp_order_sign'] = $this->Sign($data, $this->app_id, $this->option['secrect_key']);
-
         return [
             'reference' => '',
             'raw' => $data,
