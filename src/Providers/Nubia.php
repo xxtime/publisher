@@ -60,7 +60,8 @@ class Nubia extends ProviderAbstract
     public function notify()
     {
         $resquest = $_REQUEST;
-        if ($_REQUEST['pay_suceess'] != 1) {
+
+        if ($resquest['pay_success'] != 1) {
             throw new DefaultException('pay error');
         }
 
@@ -72,14 +73,15 @@ class Nubia extends ProviderAbstract
             'uid' => $resquest['uid'],
             'amount' => $resquest['amount'],
             'product_name' => $resquest['product_name'],
-            'prodcut_des' => $resquest['prodcut_des'],
+            'prodcut_des' => $resquest['product_des'],
             'number' => $resquest['number']
         ];
-
-        if ($this->Sign($data, $this->app_id, $this->option['secrect_key']) != $resquest['sign']) {
+        dump($data);
+        dump($resquest['order_sign'], $this->Sign($data, $this->app_id, $this->option['secrect_key']));
+        exit;
+        if ($this->Sign($data, $this->app_id, $this->option['secrect_key']) != $resquest['order_sign']) {
             throw  new DefaultException('sign error');
         }
-
         return [
             'transaction' => $resquest['order_no'],
             'reference' => $_REQUEST['order_serial'],
@@ -123,5 +125,14 @@ class Nubia extends ProviderAbstract
         }
         $result .= ':' . $app_id . ':' . $app_secret;
         return md5(trim($result, '&'));
+    }
+
+    public function success(){
+        $data = [
+            'code' => 0,
+            'data' => [],
+            'message' => '成功',
+        ];
+        exit(json_encode($data));
     }
 }
