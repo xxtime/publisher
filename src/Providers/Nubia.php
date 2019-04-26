@@ -69,16 +69,14 @@ class Nubia extends ProviderAbstract
             'order_no' => $resquest['order_no'],
             'data_timestamp' => $resquest['data_timestamp'],
             'pay_success' => $resquest['pay_success'],
-            'app_id' => $resquest['app_id'],
+            'app_id' => $this->option['app_id'],
             'uid' => $resquest['uid'],
             'amount' => $resquest['amount'],
             'product_name' => $resquest['product_name'],
-            'prodcut_des' => $resquest['product_des'],
+            'product_des' => $resquest['product_des'],
             'number' => $resquest['number']
         ];
-        dump($data);
-        dump($resquest['order_sign'], $this->Sign($data, $this->app_id, $this->option['secrect_key']));
-        exit;
+
         if ($this->Sign($data, $this->app_id, $this->option['secrect_key']) != $resquest['order_sign']) {
             throw  new DefaultException('sign error');
         }
