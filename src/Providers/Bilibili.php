@@ -15,16 +15,23 @@ class Bilibili extends ProviderAbstract {
     public function verifyToken($token = '', $option = [])
     {
         $url = 'pnew.biligame.net/api/server/session.verify';
-        //$uri = 'pserver.bilibiligame.net/api/server/session.verify';
+        // 灾备
+        $uri = 'pserver.bilibiligame.net/api/server/session.verify';
 
         $param['game_id'] = $this->app_id;
-        $param['merchant_id'] = $this->option['merchant_id'];
+        $param['merchant_id'] = $this->option['custom'];
         $param['uid'] = $option['uid'];
         $param['version'] = '1';
         $param['timestamp'] = time();
+        $param['server_id'] = 2257;
         $param['access_key'] = $token;
         $param['sign'] = $this->create_sign($param, $this->option['app_key']);
-        $respone = $this->call($url, $param);
+        $ch = $this->call($url, $param);
+        if (!empty(curl_errno($ch))){
+            $ch = $this->call($uri, $param);
+        }
+        $respone = curl_exec($ch);
+        curl_close($ch);
         $respone = json_decode($respone, true);
 
         if ($respone['code'] != 0) {
@@ -49,11 +56,12 @@ class Bilibili extends ProviderAbstract {
         curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 4);
         curl_setopt($ch, CURLOPT_ENCODING, ""); //必须解压缩防止乱码
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
 
-        $response = curl_exec($ch);
-        curl_close($ch);
-        return $response;
+        return $ch;
+//        $response = curl_exec($ch);
+//        curl_close($ch);
+//        return $response;
     }
 
     public function create_sign($data, $secret_key)
