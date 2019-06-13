@@ -19,7 +19,7 @@ class Bilibili extends ProviderAbstract {
         $uri = 'pserver.bilibiligame.net/api/server/session.verify';
 
         $param['game_id'] = $this->app_id;
-        $param['merchant_id'] = $this->option['custom'];
+        $param['merchant_id'] = $option['custom'];
         $param['uid'] = $option['uid'];
         $param['version'] = '1';
         $param['timestamp'] = time();
